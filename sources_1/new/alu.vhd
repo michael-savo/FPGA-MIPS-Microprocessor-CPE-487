@@ -21,9 +21,9 @@ signal carryon : std_logic_vector(32 downto 0);
 begin
 
 with operand select
-carryon <= ('0' & SrcA) + ('0' & SrcB) when "000", -- Now 33 bits = 33 bits
+carryon <= ('0' & SrcA) + ('0' & SrcB) when "010", -- Now 33 bits = 33 bits
            ('0' & SrcA) - ('0' & SrcB) when "001",
-           '0' & (SrcA AND SrcB)       when "010",
+           '0' & (SrcA AND SrcB)       when "000",
            '0' & (SrcA OR SrcB)        when "011",  
            ('0' & SrcA) + ('0' & SrcB) when others;
           
@@ -39,7 +39,7 @@ flags(1) <= carryon(32);
 
 process(SrcA, SrcB, s_result, operand)
     begin
-        if (Operand = "000") then
+        if (Operand = "010") then
             flags(0) <= (SrcA(31) xnor SrcB(31)) and (SrcA(31) xor s_result(31));
         elsif (Operand = "001") then
             flags(0) <= (SrcA(31) xor SrcB(31)) and (SrcA(31) xor s_result(31));

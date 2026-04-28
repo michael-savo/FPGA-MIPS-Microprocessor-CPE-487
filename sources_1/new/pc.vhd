@@ -7,7 +7,7 @@ entity pc is
 port(
 clk : in std_logic;
 reset : in std_logic; 
-din: in std_logic_vector(31 downto 0) := "00000000000000000000000000000000";
+din: in std_logic_vector(31 downto 0);
 dout : out std_logic_vector(31 downto 0)
 );
 end pc;
