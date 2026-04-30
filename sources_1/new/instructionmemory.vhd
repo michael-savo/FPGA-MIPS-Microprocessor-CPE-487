@@ -38,8 +38,8 @@ architecture Behavioral of instructionmemory is
     17 => "00100000000000100000000000000010", -- addi $2, $0, 2      ; should be skipped
 
     18 => "00100000000000010000000000001010", -- addi $1, $0, 10     ; final R1 = A
-    19 => "00100000000000100000000000001111", -- addi $2, $0, 15     ; final R2 = F
-
+    19 => "00100000000000100000000000001111", -- addi $2, $0, 15     ; final R2 = F 
+    
     others => (others => '0')
 );
 begin

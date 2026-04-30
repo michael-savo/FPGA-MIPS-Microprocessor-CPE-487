@@ -52,9 +52,7 @@ BEGIN
 	L1 : leddec
 	PORT MAP(dig => dig, data => display, anode => anode, seg => seg);
 	--This represents our Multiplexer (aka MUX or mpx'r). We select different segments of 4 bits to be the value we display on a particular anode.
-	display <= tempR1(3 DOWNTO 0) WHEN dig = "00" ELSE
-	           tempR2(3 DOWNTO 0) WHEN dig = "01" else
-	           ALUresult(3 DOWNTO 0) WHEN dig = "10" ELSE
-	           S(15 DOWNTO 12);
+	display <= tempR1(3 downto 0) when dig(0) = '0' else
+           tempR2(3 downto 0);
 
 END Behavioral;
