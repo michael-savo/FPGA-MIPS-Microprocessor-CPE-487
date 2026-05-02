@@ -25,6 +25,7 @@ carryon <= ('0' & SrcA) + ('0' & SrcB) when "010", -- Now 33 bits = 33 bits
            ('0' & SrcA) - ('0' & SrcB) when "001",
            '0' & (SrcA AND SrcB)       when "000",
            '0' & (SrcA OR SrcB)        when "011",  
+           '0' & SrcB(15 downto 0) & X"0000" when "100",
            ('0' & SrcA) + ('0' & SrcB) when others;
           
 s_result <= carryon (31 downto 0);
