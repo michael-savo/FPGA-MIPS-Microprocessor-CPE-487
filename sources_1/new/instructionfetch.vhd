@@ -5,7 +5,7 @@ use IEEE.NUMERIC_STD.ALL;
 entity instructionfetch is
 Port ( 
     clk, rst, jump, branch : in std_logic;
-    branch_target : in std_logic_vector(15 downto 0); -- might need to change this to be more MIPS like
+    branch_target : in std_logic_vector(15 downto 0); 
     jump_target   : in std_logic_vector(25 downto 0);
     instr, programcounter : out std_logic_vector(31 downto 0)
 );
@@ -18,6 +18,7 @@ architecture Behavioral of instructionfetch is
     signal pc_plus1  : std_logic_vector(31 downto 0);
     signal b_target  : std_logic_vector(31 downto 0);
     signal j_target  : std_logic_vector(31 downto 0);
+    signal sign_ext_branch : std_logic_vector(31 downto 0);
 
     component pc is
     port(
@@ -51,19 +52,24 @@ begin
         instr => instr
     );
 
+    -- 1. Word Addressed PC: Increment by exactly 1, 4 for byte
     pc_plus1 <= std_logic_vector(unsigned(programc) + 1);
 
-    -- Expand 26-bit targets into 32-bit word-aligned addresses
-    b_target(31 downto 18) <= "00000000000000";
-    b_target(17 downto 2)  <= branch_target;
-    b_target(1 downto 0)   <= "00";
+    -- 2. Sign extend the 16-bit branch target to 32 bits
+    sign_ext_branch(15 downto 0)  <= branch_target;
+    sign_ext_branch(31 downto 16) <= (others => branch_target(15));
 
-    j_target(31 downto 28) <= programc(31 downto 28);
-    j_target(27 downto 2)  <= jump_target;
-    j_target(1 downto 0)   <= "00";
+    -- 3. Branch Target is (PC + 1) + offset
+    b_target <= std_logic_vector(unsigned(pc_plus1) + unsigned(sign_ext_branch));
 
-    -- Next PC logic
-    pc_next <= pc_plus1;
+    -- 4. Jump target uses the exact index provided (No left shifting)
+    j_target(31 downto 26) <= programc(31 downto 26);
+    j_target(25 downto 0)  <= jump_target;
+
+    -- Next PC routing logic
+    pc_next <= j_target when jump = '1' else
+               b_target when branch = '1' else
+               pc_plus1;
 
     -- Output current PC
     programcounter <= programc;
