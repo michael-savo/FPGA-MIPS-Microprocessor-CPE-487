@@ -1,5 +1,6 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL; -- Added for PC arithmetic
 
 entity MIPSmicroprocessor is
   Port (
@@ -14,7 +15,6 @@ architecture Behavioral of MIPSmicroprocessor is
 
 component alu
 port (
-    --make it 5 bits for julian
     SrcA : in std_logic_vector(31 downto 0);
     SrcB : in std_logic_vector(31 downto 0);
     Operand : in std_logic_vector(2 downto 0);
@@ -75,13 +75,14 @@ Port (
   op : in std_logic_vector(5 downto 0);
   funct : in std_logic_vector(5 downto 0);
   
-  MemtoReg : out std_logic;
-  MemWrite : out std_logic;
-  Branch : out std_logic;
+  Jump       : out std_logic;
+  MemtoReg   : out std_logic_vector(1 downto 0); -- CHANGED TO 2 BITS
+  MemWrite   : out std_logic;
+  Branch     : out std_logic;
   ALUControl : out std_logic_vector(2 downto 0);
-  ALUSrc : out std_logic;
-  RegDst : out std_logic;
-  RegWrite : out std_logic 
+  ALUSrc     : out std_logic;
+  RegDst     : out std_logic_vector(1 downto 0); -- CHANGED TO 2 BITS
+  RegWrite   : out std_logic 
   );
 end component;
 
@@ -95,9 +96,9 @@ end component;
 component data_memory
 port (
     clk : in std_logic;
-    ALUResult : in std_logic_vector(31 downto 0); --ALU
-    WriteData : in std_logic_vector(31 downto 0); --Register File
-    MemWrite : in std_logic; --Control Unit
+    ALUResult : in std_logic_vector(31 downto 0); 
+    WriteData : in std_logic_vector(31 downto 0); 
+    MemWrite : in std_logic; 
     ReadData : out std_logic_vector(31 downto 0)
 );
 end component;
@@ -110,31 +111,6 @@ port
   clk_out1          : out    std_logic
  );
 end component;
-
---component instructionmemory
---Port ( 
---    addr : in std_logic_vector(31 downto 0);
---    instr : out std_logic_vector(31 downto 0)
---);
---end component;
-
---component pc
---port(
---    clk : in std_logic;
---    reset : in std_logic; 
---    din: in std_logic_vector(31 downto 0) := "00000000000000000000000000000000";
---    dout : out std_logic_vector(31 downto 0)
---);
---end component;
-
---component mux
---port (
---    A : in std_logic;
---    B : in std_logic;
---    S : in std_logic;
---    Z : out std_logic
---);
---end component;
 
 component instructionfetch
 Port ( 
@@ -149,8 +125,6 @@ end component;
 signal RD1out, RD2out: std_logic_vector(31 downto 0);
 signal SignImmOut: std_logic_vector(31 downto 0);
 signal ALUresultOut: std_logic_vector(31 downto 0);
---signal PCmuxOut: std_logic_vector(31 downto 0);
---signal instrIN: std_logic_vector(31 downto 0);
 signal PCOut: std_logic_vector(31 downto 0);
 signal instrOUT: std_logic_vector(31 downto 0);
 signal WriteReg: std_logic_vector(4 downto 0);
@@ -158,28 +132,22 @@ signal WriteData: std_logic_vector(31 downto 0);
 signal ReadData: std_logic_vector(31 downto 0);
 signal ALUSrcMuxOut: std_logic_vector(31 downto 0);
 signal ALUFlags: std_logic_vector(3 downto 0);
---signal PCPlus1: std_logic_vector(31 downto 0);
---signal result: std_logic_vector(31 downto 0);
 signal pc_clk: std_logic;
 
 -- Control signals --
 signal ALUControlSignal: STD_LOGIC_VECTOR(2 downto 0);
---signal ZeroSignal : STD_LOGIC;
---signal GreatThanSignal : STD_LOGIC;
---signal LessThanSignal : STD_LOGIC;
 signal MemWriteSignal : STD_LOGIC;
---signal ReadDataOut : STD_LOGIC_VECTOR(31 downto 0);
---signal JumpSignal : STD_LOGIC;
-signal MemtoRegSignal: std_logic;
+signal MemtoRegSignal: std_logic_vector(1 downto 0); -- CHANGED TO 2 BITS
 signal ALUSrcSignal: std_logic;
-signal RegDstSignal: std_logic;
+signal RegDstSignal: std_logic_vector(1 downto 0);   -- CHANGED TO 2 BITS
 signal RegWriteSignal: std_logic;
 signal BranchSignal: std_logic;
 
 -- IF stage control --
 signal rst: std_logic := '0';
-signal jump: std_logic := '0'; -- jump instructions don't happen yet
+signal jump: std_logic := '0';
 signal jump_target: std_logic_vector(25 downto 0);
+signal jump_signal : std_logic;
 signal branch_target: std_logic_vector(15 downto 0);
 signal branch_taken: std_logic;
 
@@ -217,13 +185,12 @@ signal R29: STD_LOGIC_VECTOR(31 DOWNTO 0);
 signal R30: STD_LOGIC_VECTOR(31 DOWNTO 0);
 signal R31: STD_LOGIC_VECTOR(31 DOWNTO 0);
 
---alias jump_target : std_logic_vector(25 downto 0) is instrOUT(25 downto 0);
---alias branch_target : std_logic_vector(15 downto 0) is instrOUT(15 downto 0);
 begin
 -- Assigning the top level outputs to observe registers
 Reg1 <= R1;
 Reg2 <= R2;
 ALUresult <= ALUresultOut;
+
 -- Instruction fetch --
 jump_target <= instrOUT(25 downto 0);
 branch_target <= instrOUT(15 downto 0);
@@ -232,7 +199,7 @@ InstrF: instructionfetch
 PORT MAP (
     clk => pc_clk, 
     rst => rst, 
-    jump => jump, 
+    jump => jump_signal, 
     branch => branch_taken, 
     branch_target => branch_target,
     jump_target => jump_target, 
@@ -252,38 +219,14 @@ PORT MAP (
     RD1  => RD1out,
     RD2  => RD2out,
 
-    R0   => R0,
-    R1   => R1,
-    R2   => R2,
-    R3   => R3,
-    R4   => R4,
-    R5   => R5,
-    R6   => R6,
-    R7   => R7,
-    R8   => R8,
-    R9   => R9,
-    R10  => R10,
-    R11  => R11,
-    R12  => R12,
-    R13  => R13,
-    R14  => R14,
-    R15  => R15,
-    R16  => R16,
-    R17  => R17,
-    R18  => R18,
-    R19  => R19,
-    R20  => R20,
-    R21  => R21,
-    R22  => R22,
-    R23  => R23,
-    R24  => R24,
-    R25  => R25,
-    R26  => R26,
-    R27  => R27,
-    R28  => R28,
-    R29  => R29,
-    R30  => R30,
-    R31  => R31
+    R0   => R0, R1   => R1, R2   => R2, R3   => R3,
+    R4   => R4, R5   => R5, R6   => R6, R7   => R7,
+    R8   => R8, R9   => R9, R10  => R10, R11  => R11,
+    R12  => R12, R13  => R13, R14  => R14, R15  => R15,
+    R16  => R16, R17  => R17, R18  => R18, R19  => R19,
+    R20  => R20, R21  => R21, R22  => R22, R23  => R23,
+    R24  => R24, R25  => R25, R26  => R26, R27  => R27,
+    R28  => R28, R29  => R29, R30  => R30, R31  => R31
 ); 
 
 -- Control unit --
@@ -297,7 +240,8 @@ port map (
     ALUControl => ALUControlSignal,
     ALUSrc     => ALUSrcSignal,
     RegDst     => RegDstSignal,
-    RegWrite   => RegWriteSignal
+    RegWrite   => RegWriteSignal,
+    Jump       => jump_signal
 );
 
 -- Sign Extension --
@@ -307,16 +251,18 @@ port map (
     y => SignImmOut
 );
 
--- Multiplexer for RegDst
+-- Multiplexer for RegDst (UPGRADED)
 with RegDstSignal select
-    WriteReg <= instrOUT(15 downto 11) when '1',
-                instrOut(20 downto 16) when others;
-                
+    WriteReg <= instrOut(20 downto 16)  when "00", -- rt (Default/I-types)
+                instrOUT(15 downto 11)  when "01", -- rd (R-types)
+                "11111"                 when "10", -- Register 31 (JAL)
+                "00000"                 when others;
+
 -- Multiplexer for ALUSrc
 with ALUSrcSignal select
     ALUSrcMuxOut <= RD2out when '0',
                     SignImmOut when others;
-                    
+
 -- ALU --
 ALU1: alu
 port map (
@@ -336,6 +282,7 @@ port map (
     MemWrite  => MemWriteSignal,
     ReadData  => ReadData
 );
+
 -- Adding clk wiz
 CW: clk_wiz_0
 port map (
@@ -343,11 +290,13 @@ port map (
     clk_out1 => pc_clk
 );
 
--- Multiplexer for MemtoReg
+-- Multiplexer for MemtoReg (UPGRADED)
 with MemtoRegSignal select
-    WriteData <= ALUresultOut when '0',
-                 ReadData when others;
-                 
+    WriteData <= ALUresultOut                          when "00", -- ALU output
+                 ReadData                              when "01", -- Memory output
+                 std_logic_vector(unsigned(PCOut) + 1) when "10", -- PC+1 output for JAL
+                 (others => '0')                       when others;
+
 -- Branch decision --
 branch_taken <= BranchSignal and ALUFlags(0);
 
