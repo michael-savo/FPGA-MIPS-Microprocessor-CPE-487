@@ -61,7 +61,7 @@ ARCHITECTURE Behavioral OF display_generator IS
     -- Function to get a single bit from the font
     FUNCTION get_font_pixel(hex_char : STD_LOGIC_VECTOR(3 DOWNTO 0); row : INTEGER; col : INTEGER) RETURN STD_LOGIC IS
     BEGIN
-        RETURN FONT(to_integer(unsigned(hex_char)), row)(col);
+        RETURN FONT(to_integer(unsigned(hex_char)), row)(7 - col);
     END FUNCTION;
 
     -- Function to extract hex digit from a 32-bit value
@@ -207,7 +207,7 @@ ARCHITECTURE Behavioral OF display_generator IS
 
     FUNCTION get_font_pixel(hex_char : STD_LOGIC_VECTOR(3 DOWNTO 0); row : INTEGER; col : INTEGER) RETURN STD_LOGIC IS
     BEGIN
-        RETURN FONT(to_integer(unsigned(hex_char)), row)(col);
+        RETURN FONT(to_integer(unsigned(hex_char)), row)(7 - col);
     END FUNCTION;
 
     -- Function to extract hex digit from a 32-bit value
