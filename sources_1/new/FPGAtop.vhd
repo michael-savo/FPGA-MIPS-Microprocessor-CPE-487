@@ -1,58 +1,126 @@
-library IEEE;
-use IEEE.STD_LOGIC_1164.ALL;
+LIBRARY IEEE;
+USE IEEE.STD_LOGIC_1164.ALL;
+USE IEEE.STD_LOGIC_UNSIGNED.ALL;
+USE IEEE.NUMERIC_STD.ALL;
 
+ENTITY FPGAtop IS
+    PORT (
+        clk_100MHz : IN STD_LOGIC;
+        vga_red    : OUT STD_LOGIC_VECTOR (2 DOWNTO 0);
+        vga_green  : OUT STD_LOGIC_VECTOR (2 DOWNTO 0);
+        vga_blue   : OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
+        vga_hsync  : OUT STD_LOGIC;
+        vga_vsync  : OUT STD_LOGIC
+    );
+END FPGAtop;
 
+ARCHITECTURE Behavioral OF FPGAtop IS
 
-entity FPGAtop is
-Port (
-    clk_100MHz : IN STD_LOGIC;
-	anode : OUT STD_LOGIC_VECTOR (7 DOWNTO 0);
-	seg : OUT STD_LOGIC_VECTOR (6 DOWNTO 0));
-end FPGAtop;
+COMPONENT MIPSmicroprocessor
+    PORT (
+        clk : IN STD_LOGIC;
+        ALUresult : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+        Reg1 : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+        Reg2 : OUT STD_LOGIC_VECTOR(31 DOWNTO 0)
+    );
+END COMPONENT;
 
-architecture Behavioral of FPGAtop is
+COMPONENT vga_sync
+    PORT (
+        pixel_clk : IN STD_LOGIC;
+        red_in    : IN STD_LOGIC;
+        green_in  : IN STD_LOGIC;
+        blue_in   : IN STD_LOGIC;
+        red_out   : OUT STD_LOGIC;
+        green_out : OUT STD_LOGIC;
+        blue_out  : OUT STD_LOGIC;
+        hsync     : OUT STD_LOGIC;
+        vsync     : OUT STD_LOGIC;
+        pixel_row : OUT STD_LOGIC_VECTOR (10 DOWNTO 0);
+        pixel_col : OUT STD_LOGIC_VECTOR (10 DOWNTO 0)
+    );
+END COMPONENT;
 
-component MIPSmicroprocessor
-  Port (
-  clk : in std_logic;
-  ALUresult: out std_logic_vector(31 downto 0);
-  Reg1 : out std_logic_vector(31 downto 0);
-  Reg2 : out std_logic_vector(31 downto 0)
-  );
-end component;
+COMPONENT display_generator
+    PORT (
+        v_sync     : IN STD_LOGIC;
+        pixel_row  : IN STD_LOGIC_VECTOR(10 DOWNTO 0);
+        pixel_col  : IN STD_LOGIC_VECTOR(10 DOWNTO 0);
+        ALUresult  : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+        Reg1       : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+        Reg2       : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+        red        : OUT STD_LOGIC;
+        green      : OUT STD_LOGIC;
+        blue       : OUT STD_LOGIC
+    );
+END COMPONENT;
 
-component leddec
-	PORT (
-		dig : IN STD_LOGIC_VECTOR (1 DOWNTO 0);
-		data : IN STD_LOGIC_VECTOR (3 DOWNTO 0);
-		anode : OUT STD_LOGIC_VECTOR (7 DOWNTO 0);
-		seg : OUT STD_LOGIC_VECTOR (6 DOWNTO 0)
-	);
-END component;
+COMPONENT clk_wiz_0
+    PORT (
+        clk_in1  : IN STD_LOGIC;
+        clk_out1 : OUT STD_LOGIC
+    );
+END COMPONENT;
 
-component counter
-	PORT (
-		clk : IN STD_LOGIC;
-		count : OUT STD_LOGIC_VECTOR (15 DOWNTO 0); 
-		mpx : OUT STD_LOGIC_VECTOR (1 DOWNTO 0)); 
-END component;
-
-	SIGNAL S : STD_LOGIC_VECTOR (15 DOWNTO 0); -- Connect C1 and L1 for values of 4 digits
-	SIGNAL dig : STD_LOGIC_VECTOR (1 DOWNTO 0); -- dig selects displays
-	SIGNAL display : STD_LOGIC_VECTOR (3 DOWNTO 0); -- Send digit for only one display to leddec
-	signal ALUresult : std_logic_vector (31 downto 0);
-	SIGNAL tempR1 : std_logic_vector (31 downto 0);
-	SIGNAL tempR2 : std_logic_vector (31 downto 0);
+SIGNAL pxl_clk : STD_LOGIC;
+SIGNAL S_red, S_green, S_blue : STD_LOGIC;
+SIGNAL S_vsync : STD_LOGIC;
+SIGNAL S_pixel_row, S_pixel_col : STD_LOGIC_VECTOR(10 DOWNTO 0);
+SIGNAL ALUresult : STD_LOGIC_VECTOR(31 DOWNTO 0);
+SIGNAL Reg1_out : STD_LOGIC_VECTOR(31 DOWNTO 0);
+SIGNAL Reg2_out : STD_LOGIC_VECTOR(31 DOWNTO 0);
 
 BEGIN
-    MP: MIPSmicroprocessor
-    PORT MAP(clk => clk_100MHz, ALUresult => ALUresult, Reg1 => tempR1, Reg2 => tempR2);
-	C1 : counter
-	PORT MAP(clk => clk_100MHz, count => S, mpx => dig);
-	L1 : leddec
-	PORT MAP(dig => dig, data => display, anode => anode, seg => seg);
-	--This represents our Multiplexer (aka MUX or mpx'r). We select different segments of 4 bits to be the value we display on a particular anode.
-	display <= tempR1(3 downto 0) when dig(0) = '0' else
-           tempR2(3 downto 0);
 
+    -- Instantiate MIPS Processor
+    MP : MIPSmicroprocessor
+    PORT MAP (
+        clk => clk_100MHz,
+        ALUresult => ALUresult,
+        Reg1 => Reg1_out,
+        Reg2 => Reg2_out
+    );
+
+    -- Instantiate Display Generator
+    DG : display_generator
+    PORT MAP (
+        v_sync => S_vsync,
+        pixel_row => S_pixel_row,
+        pixel_col => S_pixel_col,
+        ALUresult => ALUresult,
+        Reg1 => Reg1_out,
+        Reg2 => Reg2_out,
+        red => S_red,
+        green => S_green,
+        blue => S_blue
+    );
+
+    -- Instantiate VGA Sync Controller
+    VGA_SYNC_INST : vga_sync
+    PORT MAP (
+        pixel_clk => pxl_clk,
+        red_in => S_red,
+        green_in => S_green,
+        blue_in => S_blue,
+        red_out => vga_red(2),
+        green_out => vga_green(2),
+        blue_out => vga_blue(1),
+        hsync => vga_hsync,
+        vsync => S_vsync,
+        pixel_row => S_pixel_row,
+        pixel_col => S_pixel_col
+    );
+    vga_vsync <= S_vsync;
+
+    -- Set unused color bits to 0
+    vga_red(1 DOWNTO 0) <= "00";
+    vga_green(1 DOWNTO 0) <= "00";
+    vga_blue(0) <= '0';
+
+    -- Instantiate Clock Wizard for pixel clock
+    CLK_WIZ_INST : clk_wiz_0
+    PORT MAP (
+        clk_in1 => clk_100MHz,
+        clk_out1 => pxl_clk
+    );
 END Behavioral;
