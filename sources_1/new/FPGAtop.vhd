@@ -28,12 +28,12 @@ END COMPONENT;
 COMPONENT vga_sync
     PORT (
         pixel_clk : IN STD_LOGIC;
-        red_in    : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
-        green_in  : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
-        blue_in   : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
-        red_out   : OUT STD_LOGIC_VECTOR(2 DOWNTO 0);
-        green_out : OUT STD_LOGIC_VECTOR(2 DOWNTO 0);
-        blue_out  : OUT STD_LOGIC_VECTOR(1 DOWNTO 0);
+        red_in    : IN STD_LOGIC;
+        green_in  : IN STD_LOGIC;
+        blue_in   : IN STD_LOGIC;
+        red_out   : OUT STD_LOGIC;
+        green_out : OUT STD_LOGIC;
+        blue_out  : OUT STD_LOGIC;
         hsync     : OUT STD_LOGIC;
         vsync     : OUT STD_LOGIC;
         pixel_row : OUT STD_LOGIC_VECTOR (10 DOWNTO 0);
@@ -43,27 +43,15 @@ END COMPONENT;
 
 COMPONENT display_generator
     PORT (
-        clk       : IN STD_LOGIC;
-        v_sync    : IN STD_LOGIC;
-        pixel_row : IN STD_LOGIC_VECTOR(10 DOWNTO 0);
-        pixel_col : IN STD_LOGIC_VECTOR(10 DOWNTO 0);
-        mem_data  : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
-        mem_addr  : OUT STD_LOGIC_VECTOR(16 DOWNTO 0);
-        red       : OUT STD_LOGIC_VECTOR(2 DOWNTO 0);
-        green     : OUT STD_LOGIC_VECTOR(2 DOWNTO 0);
-        blue      : OUT STD_LOGIC_VECTOR(1 DOWNTO 0)
-    );
-END COMPONENT;
-
-COMPONENT data_memory
-    PORT (
-        clk : IN STD_LOGIC;
-        ALUResult : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
-        WriteData : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
-        MemWrite : IN STD_LOGIC;
-        ReadData : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
-        disp_addr : IN STD_LOGIC_VECTOR(16 DOWNTO 0);
-        disp_data : OUT STD_LOGIC_VECTOR(31 DOWNTO 0)
+        v_sync     : IN STD_LOGIC;
+        pixel_row  : IN STD_LOGIC_VECTOR(10 DOWNTO 0);
+        pixel_col  : IN STD_LOGIC_VECTOR(10 DOWNTO 0);
+        ALUresult  : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+        Reg1       : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+        Reg2       : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+        red        : OUT STD_LOGIC;
+        green      : OUT STD_LOGIC;
+        blue       : OUT STD_LOGIC
     );
 END COMPONENT;
 
@@ -75,12 +63,9 @@ COMPONENT clk_wiz_0
 END COMPONENT;
 
 SIGNAL pxl_clk : STD_LOGIC;
-SIGNAL S_red, S_green : STD_LOGIC_VECTOR(2 DOWNTO 0);
-SIGNAL S_blue : STD_LOGIC_VECTOR(1 DOWNTO 0);
+SIGNAL S_red, S_green, S_blue : STD_LOGIC;
 SIGNAL S_vsync : STD_LOGIC;
 SIGNAL S_pixel_row, S_pixel_col : STD_LOGIC_VECTOR(10 DOWNTO 0);
-SIGNAL mem_addr : STD_LOGIC_VECTOR(16 DOWNTO 0);
-SIGNAL mem_data : STD_LOGIC_VECTOR(31 DOWNTO 0);
 SIGNAL ALUresult : STD_LOGIC_VECTOR(31 DOWNTO 0);
 SIGNAL Reg1_out : STD_LOGIC_VECTOR(31 DOWNTO 0);
 SIGNAL Reg2_out : STD_LOGIC_VECTOR(31 DOWNTO 0);
@@ -96,27 +81,15 @@ BEGIN
         Reg2 => Reg2_out
     );
 
-    -- Instantiate Data Memory (Framebuffer)
-    DM : data_memory
-    PORT MAP (
-        clk => clk_100MHz,
-        ALUResult => ALUresult,
-        WriteData => Reg1_out,  -- Write from register file
-        MemWrite => '0',         -- Connect control signal from CPU
-        ReadData => open,        -- Not used in display mode
-        disp_addr => mem_addr,   -- Address from display generator
-        disp_data => mem_data    -- Pixel data to display generator
-    );
-
     -- Instantiate Display Generator
     DG : display_generator
     PORT MAP (
-        clk => clk_100MHz,
         v_sync => S_vsync,
         pixel_row => S_pixel_row,
         pixel_col => S_pixel_col,
-        mem_data => mem_data,
-        mem_addr => mem_addr,
+        ALUresult => ALUresult,
+        Reg1 => Reg1_out,
+        Reg2 => Reg2_out,
         red => S_red,
         green => S_green,
         blue => S_blue
@@ -129,9 +102,9 @@ BEGIN
         red_in => S_red,
         green_in => S_green,
         blue_in => S_blue,
-        red_out => vga_red,
-        green_out => vga_green,
-        blue_out => vga_blue,
+        red_out => vga_red(2),
+        green_out => vga_green(2),
+        blue_out => vga_blue(1),
         hsync => vga_hsync,
         vsync => S_vsync,
         pixel_row => S_pixel_row,
@@ -139,11 +112,15 @@ BEGIN
     );
     vga_vsync <= S_vsync;
 
+    -- Set unused color bits to 0
+    vga_red(1 DOWNTO 0) <= "00";
+    vga_green(1 DOWNTO 0) <= "00";
+    vga_blue(0) <= '0';
+
     -- Instantiate Clock Wizard for pixel clock
     CLK_WIZ_INST : clk_wiz_0
     PORT MAP (
         clk_in1 => clk_100MHz,
         clk_out1 => pxl_clk
     );
-
 END Behavioral;
