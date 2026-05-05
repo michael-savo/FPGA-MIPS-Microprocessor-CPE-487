@@ -21,16 +21,7 @@ ARCHITECTURE Behavioral OF vga_top IS
     SIGNAL S_red, S_green, S_blue : STD_LOGIC;
     SIGNAL S_vsync : STD_LOGIC;
     SIGNAL S_pixel_row, S_pixel_col : STD_LOGIC_VECTOR (10 DOWNTO 0);
-    COMPONENT ball IS
-        PORT (
-            v_sync : IN STD_LOGIC;
-            pixel_row : IN STD_LOGIC_VECTOR(10 DOWNTO 0);
-            pixel_col : IN STD_LOGIC_VECTOR(10 DOWNTO 0);
-            red : OUT STD_LOGIC;
-            green : OUT STD_LOGIC;
-            blue : OUT STD_LOGIC
-        );
-    END COMPONENT;
+
     COMPONENT vga_sync IS
         PORT (
             pixel_clk : IN STD_LOGIC;
@@ -61,17 +52,6 @@ BEGIN
     vga_red(1 DOWNTO 0) <= "00";
     vga_green(1 DOWNTO 0) <= "00";
     vga_blue(0) <= '0';
-
-    add_ball : ball
-    PORT MAP(
-        --instantiate ball component
-        v_sync    => S_vsync, 
-        pixel_row => S_pixel_row, 
-        pixel_col => S_pixel_col, 
-        red       => S_red, 
-        green     => S_green, 
-        blue      => S_blue
-    );
 
     vga_driver : vga_sync
     PORT MAP(
