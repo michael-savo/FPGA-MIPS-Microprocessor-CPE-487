@@ -47,8 +47,7 @@ COMPONENT display_generator
         pixel_row  : IN STD_LOGIC_VECTOR(10 DOWNTO 0);
         pixel_col  : IN STD_LOGIC_VECTOR(10 DOWNTO 0);
         ALUresult  : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
-        Reg1       : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
-        Reg2       : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+        Reg1, Reg2, Reg3, Reg4, Reg5, Reg6, Reg7, Reg8, Reg9, Reg10 : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
         red        : OUT STD_LOGIC;
         green      : OUT STD_LOGIC;
         blue       : OUT STD_LOGIC
@@ -67,15 +66,29 @@ SIGNAL S_red, S_green, S_blue : STD_LOGIC;
 SIGNAL S_vsync : STD_LOGIC;
 SIGNAL S_pixel_row, S_pixel_col : STD_LOGIC_VECTOR(10 DOWNTO 0);
 SIGNAL ALUresult : STD_LOGIC_VECTOR(31 DOWNTO 0);
-SIGNAL Reg1_out : STD_LOGIC_VECTOR(31 DOWNTO 0);
-SIGNAL Reg2_out : STD_LOGIC_VECTOR(31 DOWNTO 0);
-
+SIGNAL Reg1_out, Reg2_out, Reg3_out, Reg4_out, Reg5_out, Reg6_out, Reg7_out, Reg8_out, Reg9_out, Reg10_out : STD_LOGIC_VECTOR(31 DOWNTO 0);
+SIGNAL mips_clk_div : STD_LOGIC_VECTOR(23 DOWNTO 0) := (OTHERS => '0');
+SIGNAL mips_clk     : STD_LOGIC;
 BEGIN
-
+-- Hardware Clock Divider for MIPS
+    PROCESS(clk_100MHz)
+    BEGIN
+        IF RISING_EDGE(clk_100MHz) THEN
+            mips_clk_div <= mips_clk_div + 1;
+        END IF;
+    END PROCESS;
+    
+    -- Extract the slower clock. 
+    -- Bit 23 gives roughly 6 Hz. 
+    -- Change to bit 22 for ~12Hz, or bit 21 for ~24Hz if you want the art faster!
+    -- mips_clk <= mips_clk_div(23);
+    -- Change to clk_100 MHz to bypass slow clock and run at native speed.
+     mips_clk <= clk_100MHz;
+    
     -- Instantiate MIPS Processor
     MP : MIPSmicroprocessor
     PORT MAP (
-        clk => clk_100MHz,
+        clk => mips_clk,
         ALUresult => ALUresult,
         Reg1 => Reg1_out,
         Reg2 => Reg2_out
@@ -88,11 +101,11 @@ BEGIN
         pixel_row => S_pixel_row,
         pixel_col => S_pixel_col,
         ALUresult => ALUresult,
-        Reg1 => Reg1_out,
-        Reg2 => Reg2_out,
-        red => S_red,
-        green => S_green,
-        blue => S_blue
+        Reg1 => Reg1_out, Reg2 => Reg2_out, Reg3 => Reg3_out,
+        Reg4 => Reg4_out, Reg5 => Reg5_out, Reg6 => Reg6_out,
+        Reg7 => Reg7_out, Reg8 => Reg8_out, Reg9 => Reg9_out,
+        Reg10 => Reg10_out,
+        red => S_red, green => S_green, blue => S_blue
     );
 
     -- Instantiate VGA Sync Controller
