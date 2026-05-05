@@ -21,7 +21,7 @@ ARCHITECTURE Behavioral OF display_generator IS
 BEGIN
 
     PROCESS(pixel_row, pixel_col, mem_data)
-        VARIABLE px_col : INTEGER;z
+        VARIABLE px_col : INTEGER;
         VARIABLE px_row : INTEGER;
         VARIABLE word_addr : INTEGER;
         VARIABLE pixel_in_word : INTEGER;
