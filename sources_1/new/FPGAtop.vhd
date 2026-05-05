@@ -48,7 +48,7 @@ COMPONENT display_generator
         pixel_row : IN STD_LOGIC_VECTOR(10 DOWNTO 0);
         pixel_col : IN STD_LOGIC_VECTOR(10 DOWNTO 0);
         mem_data  : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
-        mem_addr  : OUT STD_LOGIC_VECTOR(17 DOWNTO 0);
+        mem_addr  : OUT STD_LOGIC_VECTOR(16 DOWNTO 0);
         red       : OUT STD_LOGIC_VECTOR(2 DOWNTO 0);
         green     : OUT STD_LOGIC_VECTOR(2 DOWNTO 0);
         blue      : OUT STD_LOGIC_VECTOR(1 DOWNTO 0)
@@ -62,7 +62,7 @@ COMPONENT data_memory
         WriteData : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
         MemWrite : IN STD_LOGIC;
         ReadData : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
-        disp_addr : IN STD_LOGIC_VECTOR(17 DOWNTO 0);
+        disp_addr : IN STD_LOGIC_VECTOR(16 DOWNTO 0);
         disp_data : OUT STD_LOGIC_VECTOR(31 DOWNTO 0)
     );
 END COMPONENT;
@@ -79,7 +79,7 @@ SIGNAL S_red, S_green : STD_LOGIC_VECTOR(2 DOWNTO 0);
 SIGNAL S_blue : STD_LOGIC_VECTOR(1 DOWNTO 0);
 SIGNAL S_vsync : STD_LOGIC;
 SIGNAL S_pixel_row, S_pixel_col : STD_LOGIC_VECTOR(10 DOWNTO 0);
-SIGNAL mem_addr : STD_LOGIC_VECTOR(17 DOWNTO 0);
+SIGNAL mem_addr : STD_LOGIC_VECTOR(16 DOWNTO 0);
 SIGNAL mem_data : STD_LOGIC_VECTOR(31 DOWNTO 0);
 SIGNAL ALUresult : STD_LOGIC_VECTOR(31 DOWNTO 0);
 SIGNAL Reg1_out : STD_LOGIC_VECTOR(31 DOWNTO 0);
@@ -102,7 +102,7 @@ BEGIN
         clk => clk_100MHz,
         ALUResult => ALUresult,
         WriteData => Reg1_out,  -- Write from register file
-        MemWrite => '0',         -- TODO: Connect control signal from CPU
+        MemWrite => '0',         -- Connect control signal from CPU
         ReadData => open,        -- Not used in display mode
         disp_addr => mem_addr,   -- Address from display generator
         disp_data => mem_data    -- Pixel data to display generator
