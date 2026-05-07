@@ -6,6 +6,8 @@ USE IEEE.NUMERIC_STD.ALL;
 ENTITY FPGAtop IS
     PORT (
         clk_100MHz : IN STD_LOGIC;
+        BTNU : IN STD_LOGIC;
+        BTND: IN STD_LOGIC;
         vga_red    : OUT STD_LOGIC_VECTOR (2 DOWNTO 0);
         vga_green  : OUT STD_LOGIC_VECTOR (2 DOWNTO 0);
         vga_blue   : OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
@@ -47,7 +49,7 @@ COMPONENT display_generator
         pixel_row  : IN STD_LOGIC_VECTOR(10 DOWNTO 0);
         pixel_col  : IN STD_LOGIC_VECTOR(10 DOWNTO 0);
         ALUresult  : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
-        Reg1, Reg2, Reg3, Reg4, Reg5, Reg6, Reg7, Reg8, Reg9, Reg10 : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+        Reg1, Reg2, Reg3, Reg4, Reg5, Reg6, Reg7, Reg8, Reg9, Reg10, Reg11, Reg12, Reg13, Reg14, Reg15, Reg16, Reg17, Reg18, Reg19, Reg20, Reg21, Reg22, Reg23, Reg24, Reg25, Reg26, Reg27, Reg28, Reg29, Reg30, Reg31 : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
         red        : OUT STD_LOGIC;
         green      : OUT STD_LOGIC;
         blue       : OUT STD_LOGIC
@@ -66,7 +68,7 @@ SIGNAL S_red, S_green, S_blue : STD_LOGIC;
 SIGNAL S_vsync : STD_LOGIC;
 SIGNAL S_pixel_row, S_pixel_col : STD_LOGIC_VECTOR(10 DOWNTO 0);
 SIGNAL ALUresult : STD_LOGIC_VECTOR(31 DOWNTO 0);
-SIGNAL Reg1_out, Reg2_out, Reg3_out, Reg4_out, Reg5_out, Reg6_out, Reg7_out, Reg8_out, Reg9_out, Reg10_out : STD_LOGIC_VECTOR(31 DOWNTO 0);
+SIGNAL Reg1_out, Reg2_out, Reg3_out, Reg4_out, Reg5_out, Reg6_out, Reg7_out, Reg8_out, Reg9_out, Reg10_out, Reg11_out, Reg12_out, Reg13_out, Reg14_out, Reg15_out, Reg16_out, Reg17_out, Reg18_out, Reg19_out, Reg20_out, Reg21_out, Reg22_out, Reg23_out, Reg24_out, Reg25_out, Reg26_out, Reg27_out, Reg28_out, Reg29_out, Reg30_out, Reg31_out: STD_LOGIC_VECTOR(31 DOWNTO 0);
 SIGNAL mips_clk_div : STD_LOGIC_VECTOR(23 DOWNTO 0) := (OTHERS => '0');
 SIGNAL mips_clk     : STD_LOGIC;
 BEGIN
@@ -104,7 +106,13 @@ BEGIN
         Reg1 => Reg1_out, Reg2 => Reg2_out, Reg3 => Reg3_out,
         Reg4 => Reg4_out, Reg5 => Reg5_out, Reg6 => Reg6_out,
         Reg7 => Reg7_out, Reg8 => Reg8_out, Reg9 => Reg9_out,
-        Reg10 => Reg10_out,
+        Reg10 => Reg10_out, Reg11 => Reg11_out, Reg12 => Reg12_out, Reg13 => Reg13_out,
+        Reg14 => Reg14_out, Reg15 => Reg15_out, Reg16 => Reg16_out,
+        Reg17 => Reg17_out, Reg18 => Reg18_out, Reg19 => Reg19_out,
+        Reg20 => Reg20_out, Reg21 => Reg21_out, Reg22 => Reg22_out,
+        Reg23 => Reg23_out, Reg24 => Reg24_out, Reg25 => Reg25_out,
+        Reg26 => Reg26_out, Reg27 => Reg27_out, Reg28 => Reg28_out,
+        Reg29 => Reg29_out, Reg30 => Reg30_out, Reg31 => Reg31_out,
         red => S_red, green => S_green, blue => S_blue
     );
 
