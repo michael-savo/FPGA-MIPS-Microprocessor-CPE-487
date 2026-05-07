@@ -6,8 +6,7 @@ entity MIPSmicroprocessor is
   Port (
   clk : in std_logic;
   ALUresult: out std_logic_vector(31 downto 0);
-  Reg1 : out std_logic_vector(31 downto 0);
-  Reg2 : out std_logic_vector(31 downto 0)
+  Reg1, Reg2, Reg3, Reg4, Reg5, Reg6, Reg7, Reg8, Reg9, Reg10, Reg11, Reg12, Reg13, Reg14, Reg15, Reg16, Reg17, Reg18, Reg19, Reg20, Reg21, Reg22, Reg23, Reg24, Reg25, Reg26, Reg27, Reg28, Reg29, Reg30, Reg31 : OUT STD_LOGIC_VECTOR(31 DOWNTO 0)
   );
 end MIPSmicroprocessor;
 
@@ -189,6 +188,16 @@ begin
 -- Assigning the top level outputs to observe registers
 Reg1 <= R1;
 Reg2 <= R2;
+Reg1 <= R1;
+Reg2 <= R2;
+Reg3 <= R3;
+Reg4 <= R4;
+Reg5 <= R5;
+Reg6 <= R6;
+Reg7 <= R7;
+Reg8 <= R8;
+Reg9 <= R9;
+Reg10 <= R10;
 ALUresult <= ALUresultOut;
 
 -- Instruction fetch --
@@ -284,11 +293,12 @@ port map (
 );
 
 -- Adding clk wiz
-CW: clk_wiz_0
-port map (
-    clk_in1 => clk,
-    clk_out1 => pc_clk
-);
+--CW: clk_wiz_0
+--port map (
+--    clk_in1 => clk,
+--    clk_out1 => pc_clk
+--);
+pc_clk <= clk;
 
 -- Multiplexer for MemtoReg (UPGRADED)
 with MemtoRegSignal select
