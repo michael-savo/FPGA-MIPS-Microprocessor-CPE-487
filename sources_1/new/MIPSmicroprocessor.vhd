@@ -198,6 +198,27 @@ Reg7 <= R7;
 Reg8 <= R8;
 Reg9 <= R9;
 Reg10 <= R10;
+Reg11 <= R11;
+Reg12 <= R12;
+Reg13 <= R13;
+Reg14 <= R14;
+Reg15 <= R15;
+Reg16 <= R16;
+Reg17 <= R17;
+Reg18 <= R18;
+Reg19 <= R19;
+Reg20 <= R20;
+Reg21 <= R21;
+Reg22 <= R22;
+Reg23 <= R23;
+Reg24 <= R24;
+Reg25 <= R25;
+Reg26 <= R26;
+Reg27 <= R27;
+Reg28 <= R28;
+Reg29 <= R29;
+Reg30 <= R30;
+Reg31 <= R31;
 ALUresult <= ALUresultOut;
 
 -- Instruction fetch --
