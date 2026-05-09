@@ -169,7 +169,7 @@ case op is
     when "000010" => --J (Jump)
         RegWrite <= '0';
         RegDst <= "00";
-        ALUSrc <= '0'; 
+        ALUSrc <= '0';
         Branch <= '0';
         MemWrite <= '0';
         MemtoReg <= "00";

@@ -13,10 +13,10 @@ ENTITY display_generator IS
         v_sync         : IN STD_LOGIC;
         pixel_row      : IN STD_LOGIC_VECTOR(10 DOWNTO 0);
         pixel_col      : IN STD_LOGIC_VECTOR(10 DOWNTO 0);
-        framebuffer_pixel : IN STD_LOGIC;
         ALUresult      : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
         Reg1, Reg2, Reg3, Reg4, Reg5, Reg6, Reg7, Reg8, Reg9, Reg10, Reg11, Reg12, Reg13, Reg14, Reg15, Reg16, Reg17, Reg18, Reg19, Reg20, Reg21, Reg22, Reg23, Reg24, Reg25, Reg26, Reg27, Reg28, Reg29, Reg30, Reg31 : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
         
+        selected_program : OUT STD_LOGIC_VECTOR(2 DOWNTO 0);
         red            : OUT STD_LOGIC;
         green          : OUT STD_LOGIC;
         blue           : OUT STD_LOGIC
@@ -53,6 +53,181 @@ ARCHITECTURE Behavioral OF display_generator IS
     FUNCTION get_hex_digit(value : STD_LOGIC_VECTOR(31 DOWNTO 0); digit_pos : INTEGER) RETURN STD_LOGIC_VECTOR IS
     BEGIN
         RETURN value((digit_pos * 4 + 3) DOWNTO (digit_pos * 4));
+    END FUNCTION;
+
+    FUNCTION get_menu_pixel(label_id : INTEGER; char_index : INTEGER; row : INTEGER; col : INTEGER) RETURN STD_LOGIC IS
+        VARIABLE glyph : INTEGER;
+        VARIABLE bits : STD_LOGIC_VECTOR(7 DOWNTO 0);
+    BEGIN
+        glyph := 0;
+
+        IF label_id = 0 THEN
+            CASE char_index IS
+                WHEN 0 => glyph := 1; -- C
+                WHEN 1 => glyph := 2; -- U
+                WHEN 2 => glyph := 3; -- B
+                WHEN 3 => glyph := 4; -- E
+                WHEN OTHERS => glyph := 0;
+            END CASE;
+        ELSE
+            CASE char_index IS
+                WHEN 0 => glyph := 12; -- F
+                WHEN 1 => glyph := 13; -- I
+                WHEN 2 => glyph := 3; -- B
+                WHEN 3 => glyph := 7; -- O
+                WHEN OTHERS => glyph := 0;
+            END CASE;
+        END IF;
+
+        CASE glyph IS
+            WHEN 1 => -- C
+                CASE row IS
+                    WHEN 0 => bits := "00111100";
+                    WHEN 1 => bits := "01000010";
+                    WHEN 2 => bits := "10000000";
+                    WHEN 3 => bits := "10000000";
+                    WHEN 4 => bits := "10000000";
+                    WHEN 5 => bits := "10000000";
+                    WHEN 6 => bits := "01000010";
+                    WHEN OTHERS => bits := "00111100";
+                END CASE;
+            WHEN 2 => -- U
+                CASE row IS
+                    WHEN 0 => bits := "10000010";
+                    WHEN 1 => bits := "10000010";
+                    WHEN 2 => bits := "10000010";
+                    WHEN 3 => bits := "10000010";
+                    WHEN 4 => bits := "10000010";
+                    WHEN 5 => bits := "10000010";
+                    WHEN 6 => bits := "01000100";
+                    WHEN OTHERS => bits := "00111000";
+                END CASE;
+            WHEN 3 => -- B
+                CASE row IS
+                    WHEN 0 => bits := "11111100";
+                    WHEN 1 => bits := "10000010";
+                    WHEN 2 => bits := "10000010";
+                    WHEN 3 => bits := "11111100";
+                    WHEN 4 => bits := "10000010";
+                    WHEN 5 => bits := "10000010";
+                    WHEN 6 => bits := "10000010";
+                    WHEN OTHERS => bits := "11111100";
+                END CASE;
+            WHEN 4 => -- E
+                CASE row IS
+                    WHEN 0 => bits := "11111110";
+                    WHEN 1 => bits := "10000000";
+                    WHEN 2 => bits := "10000000";
+                    WHEN 3 => bits := "11111100";
+                    WHEN 4 => bits := "10000000";
+                    WHEN 5 => bits := "10000000";
+                    WHEN 6 => bits := "10000000";
+                    WHEN OTHERS => bits := "11111110";
+                END CASE;
+            WHEN 5 => -- P
+                CASE row IS
+                    WHEN 0 => bits := "11111100";
+                    WHEN 1 => bits := "10000010";
+                    WHEN 2 => bits := "10000010";
+                    WHEN 3 => bits := "11111100";
+                    WHEN 4 => bits := "10000000";
+                    WHEN 5 => bits := "10000000";
+                    WHEN 6 => bits := "10000000";
+                    WHEN OTHERS => bits := "10000000";
+                END CASE;
+            WHEN 6 => -- R
+                CASE row IS
+                    WHEN 0 => bits := "11111100";
+                    WHEN 1 => bits := "10000010";
+                    WHEN 2 => bits := "10000010";
+                    WHEN 3 => bits := "11111100";
+                    WHEN 4 => bits := "10010000";
+                    WHEN 5 => bits := "10001000";
+                    WHEN 6 => bits := "10000100";
+                    WHEN OTHERS => bits := "10000010";
+                END CASE;
+            WHEN 7 => -- O
+                CASE row IS
+                    WHEN 0 => bits := "00111100";
+                    WHEN 1 => bits := "01000010";
+                    WHEN 2 => bits := "10000001";
+                    WHEN 3 => bits := "10000001";
+                    WHEN 4 => bits := "10000001";
+                    WHEN 5 => bits := "10000001";
+                    WHEN 6 => bits := "01000010";
+                    WHEN OTHERS => bits := "00111100";
+                END CASE;
+            WHEN 8 => -- G
+                CASE row IS
+                    WHEN 0 => bits := "00111100";
+                    WHEN 1 => bits := "01000010";
+                    WHEN 2 => bits := "10000000";
+                    WHEN 3 => bits := "10011110";
+                    WHEN 4 => bits := "10000010";
+                    WHEN 5 => bits := "10000010";
+                    WHEN 6 => bits := "01000010";
+                    WHEN OTHERS => bits := "00111100";
+                END CASE;
+            WHEN 9 => -- A
+                CASE row IS
+                    WHEN 0 => bits := "00111100";
+                    WHEN 1 => bits := "01000010";
+                    WHEN 2 => bits := "10000001";
+                    WHEN 3 => bits := "10000001";
+                    WHEN 4 => bits := "11111111";
+                    WHEN 5 => bits := "10000001";
+                    WHEN 6 => bits := "10000001";
+                    WHEN OTHERS => bits := "10000001";
+                END CASE;
+            WHEN 10 => -- M
+                CASE row IS
+                    WHEN 0 => bits := "10000001";
+                    WHEN 1 => bits := "11000011";
+                    WHEN 2 => bits := "10100101";
+                    WHEN 3 => bits := "10011001";
+                    WHEN 4 => bits := "10000001";
+                    WHEN 5 => bits := "10000001";
+                    WHEN 6 => bits := "10000001";
+                    WHEN OTHERS => bits := "10000001";
+                END CASE;
+            WHEN 11 => -- 2
+                CASE row IS
+                    WHEN 0 => bits := "00111100";
+                    WHEN 1 => bits := "01000010";
+                    WHEN 2 => bits := "00000010";
+                    WHEN 3 => bits := "00000100";
+                    WHEN 4 => bits := "00001000";
+                    WHEN 5 => bits := "00010000";
+                    WHEN 6 => bits := "00100000";
+                    WHEN OTHERS => bits := "01111110";
+                END CASE;
+            WHEN 12 => -- F
+                CASE row IS
+                    WHEN 0 => bits := "11111110";
+                    WHEN 1 => bits := "10000000";
+                    WHEN 2 => bits := "10000000";
+                    WHEN 3 => bits := "11111100";
+                    WHEN 4 => bits := "10000000";
+                    WHEN 5 => bits := "10000000";
+                    WHEN 6 => bits := "10000000";
+                    WHEN OTHERS => bits := "10000000";
+                END CASE;
+            WHEN 13 => -- I
+                CASE row IS
+                    WHEN 0 => bits := "01111110";
+                    WHEN 1 => bits := "00011000";
+                    WHEN 2 => bits := "00011000";
+                    WHEN 3 => bits := "00011000";
+                    WHEN 4 => bits := "00011000";
+                    WHEN 5 => bits := "00011000";
+                    WHEN 6 => bits := "00011000";
+                    WHEN OTHERS => bits := "01111110";
+                END CASE;
+            WHEN OTHERS =>
+                bits := "00000000";
+        END CASE;
+
+        RETURN bits(7 - col);
     END FUNCTION;
 
     TYPE reg_array_t IS ARRAY (0 TO 31) OF STD_LOGIC_VECTOR(31 DOWNTO 0);
@@ -99,6 +274,8 @@ ARCHITECTURE Behavioral OF display_generator IS
     SIGNAL lx4, ly4, lx5, ly5, lx6, ly6, lx7, ly7 : INTEGER RANGE 0 TO 2047 := 0;
 
 BEGIN
+
+    selected_program <= "011" WHEN menu_index = 0 ELSE "000";
 
     -- =========================================================
     -- FSM: MENU STATE AND BUTTON HANDLING (Using v_sync as 60Hz clock)
@@ -156,7 +333,7 @@ BEGIN
     -- =========================================================
     -- DISPLAY GENERATOR (Combinational Logic)
     -- =========================================================
-    PROCESS(pixel_row, pixel_col, framebuffer_pixel, ALUresult, Reg1, Reg2, Reg3, Reg4, Reg5, Reg6, Reg7, Reg8, Reg9, Reg10, Reg11, Reg12, Reg13, Reg14, Reg15, Reg16, Reg17, Reg18, Reg19, Reg20, Reg21, Reg22, Reg23, Reg24, Reg25, Reg26, Reg27, Reg28, Reg29, Reg30, Reg31, menu_enable, menu_index, lx0, ly0, lx1, ly1, lx2, ly2, lx3, ly3, lx4, ly4, lx5, ly5, lx6, ly6, lx7, ly7)
+    PROCESS(pixel_row, pixel_col, ALUresult, Reg1, Reg2, Reg3, Reg4, Reg5, Reg6, Reg7, Reg8, Reg9, Reg10, Reg11, Reg12, Reg13, Reg14, Reg15, Reg16, Reg17, Reg18, Reg19, Reg20, Reg21, Reg22, Reg23, Reg24, Reg25, Reg26, Reg27, Reg28, Reg29, Reg30, Reg31, menu_enable, menu_index, lx0, ly0, lx1, ly1, lx2, ly2, lx3, ly3, lx4, ly4, lx5, ly5, lx6, ly6, lx7, ly7)
         VARIABLE px_col, px_row : INTEGER;
         VARIABLE char_x, char_y, char_index : INTEGER;
         VARIABLE hex_digit : STD_LOGIC_VECTOR(3 DOWNTO 0);
@@ -168,6 +345,7 @@ BEGIN
         VARIABLE reg_val : STD_LOGIC_VECTOR(31 DOWNTO 0);
         VARIABLE grid_row, grid_col : INTEGER;
         VARIABLE start_x, start_y : INTEGER;
+        VARIABLE label_char, label_x, label_y : INTEGER;
         VARIABLE x0, y0, x1, y1, x2, y2, x3, y3 : INTEGER;
         VARIABLE x4, y4, x5, y5, x6, y6, x7, y7 : INTEGER;
         VARIABLE cube_pixel : STD_LOGIC;
@@ -186,7 +364,7 @@ BEGIN
         all_regs(24) := Reg24; all_regs(25) := Reg25; all_regs(26) := Reg26; all_regs(27) := Reg27;
         all_regs(28) := Reg28; all_regs(29) := Reg29; all_regs(30) := Reg30; all_regs(31) := Reg31;
 
-        -- 1. Rasterize CPU-computed cube vertices.
+        -- 1. Active program display.
         x0 := lx0; y0 := ly0;
         x1 := lx1; y1 := ly1;
         x2 := lx2; y2 := ly2;
@@ -198,25 +376,42 @@ BEGIN
 
         cube_pixel := '0';
 
-        IF on_segment(px_col, px_row, x0, y0, x1, y1, 2) OR
-           on_segment(px_col, px_row, x1, y1, x2, y2, 2) OR
-           on_segment(px_col, px_row, x2, y2, x3, y3, 2) OR
-           on_segment(px_col, px_row, x3, y3, x0, y0, 2) OR
-           on_segment(px_col, px_row, x4, y4, x5, y5, 2) OR
-           on_segment(px_col, px_row, x5, y5, x6, y6, 2) OR
-           on_segment(px_col, px_row, x6, y6, x7, y7, 2) OR
-           on_segment(px_col, px_row, x7, y7, x4, y4, 2) OR
-           on_segment(px_col, px_row, x0, y0, x4, y4, 2) OR
-           on_segment(px_col, px_row, x1, y1, x5, y5, 2) OR
-           on_segment(px_col, px_row, x2, y2, x6, y6, 2) OR
-           on_segment(px_col, px_row, x3, y3, x7, y7, 2) THEN
-            cube_pixel := '1';
-        END IF;
+        IF menu_index = 0 THEN
+            IF on_segment(px_col, px_row, x0, y0, x1, y1, 2) OR
+               on_segment(px_col, px_row, x1, y1, x2, y2, 2) OR
+               on_segment(px_col, px_row, x2, y2, x3, y3, 2) OR
+               on_segment(px_col, px_row, x3, y3, x0, y0, 2) OR
+               on_segment(px_col, px_row, x4, y4, x5, y5, 2) OR
+               on_segment(px_col, px_row, x5, y5, x6, y6, 2) OR
+               on_segment(px_col, px_row, x6, y6, x7, y7, 2) OR
+               on_segment(px_col, px_row, x7, y7, x4, y4, 2) OR
+               on_segment(px_col, px_row, x0, y0, x4, y4, 2) OR
+               on_segment(px_col, px_row, x1, y1, x5, y5, 2) OR
+               on_segment(px_col, px_row, x2, y2, x6, y6, 2) OR
+               on_segment(px_col, px_row, x3, y3, x7, y7, 2) THEN
+                cube_pixel := '1';
+            END IF;
 
-        IF cube_pixel = '1' THEN
-            red <= '1'; green <= '1'; blue <= '1';
+            IF cube_pixel = '1' THEN
+                red <= '1'; green <= '1'; blue <= '1';
+            ELSE
+                red <= '0'; green <= '0'; blue <= '0';
+            END IF;
         ELSE
-            red <= '0'; green <= '0'; blue <= '0';
+            math_r := (pixel_col + Reg1(10 DOWNTO 0)) XOR (pixel_row + Reg2(10 DOWNTO 0));
+            bg_r   := math_r(5) XOR Reg3(4) XOR ALUresult(2);
+
+            math_g := (pixel_col XOR Reg4(10 DOWNTO 0)) AND (pixel_row XOR Reg5(10 DOWNTO 0));
+            bg_g   := math_g(6) XOR Reg6(5);
+
+            math_b := (pixel_col - Reg7(10 DOWNTO 0)) XOR (pixel_row - Reg8(10 DOWNTO 0));
+            bg_b   := math_b(4) XOR Reg9(3);
+
+            IF Reg10(4) = '1' THEN
+                red <= NOT bg_r; green <= NOT bg_g; blue <= NOT bg_b;
+            ELSE
+                red <= bg_r; green <= bg_g; blue <= bg_b;
+            END IF;
         END IF;
 
         IF (px_col < 10 OR px_col > 790 OR px_row < 10 OR px_row > 590) THEN
@@ -254,6 +449,33 @@ BEGIN
                 END IF;
                 IF (px_row = 180 OR px_row = 209 OR px_col = 70 OR px_col = 399) THEN
                     red <= '1'; green <= '1'; blue <= '1';
+                END IF;
+            END IF;
+
+            -- OPTION LABELS
+            IF (px_row >= 141 AND px_row < 149 AND px_col >= 90 AND px_col < 122) THEN
+                label_char := (px_col - 90) / 8;
+                label_x := (px_col - 90) MOD 8;
+                label_y := px_row - 141;
+                IF get_menu_pixel(0, label_char, label_y, label_x) = '1' THEN
+                    IF menu_index = 0 THEN
+                        red <= '0'; green <= '0'; blue <= '0';
+                    ELSE
+                        red <= '1'; green <= '1'; blue <= '1';
+                    END IF;
+                END IF;
+            END IF;
+
+            IF (px_row >= 191 AND px_row < 199 AND px_col >= 90 AND px_col < 122) THEN
+                label_char := (px_col - 90) / 8;
+                label_x := (px_col - 90) MOD 8;
+                label_y := px_row - 191;
+                IF get_menu_pixel(1, label_char, label_y, label_x) = '1' THEN
+                    IF menu_index = 1 THEN
+                        red <= '0'; green <= '0'; blue <= '0';
+                    ELSE
+                        red <= '1'; green <= '1'; blue <= '1';
+                    END IF;
                 END IF;
             END IF;
         END IF;

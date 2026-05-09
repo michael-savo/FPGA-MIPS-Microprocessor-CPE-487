@@ -8,11 +8,7 @@ port (
     ALUResult : in std_logic_vector(31 downto 0);
     WriteData : in std_logic_vector(31 downto 0);
     MemWrite : in std_logic;
-    ReadData : out std_logic_vector(31 downto 0);
-    vga_clk : in std_logic;
-    vga_pixel_x : in std_logic_vector(10 downto 0);
-    vga_pixel_y : in std_logic_vector(10 downto 0);
-    vga_pixel_on : out std_logic
+    ReadData : out std_logic_vector(31 downto 0)
 );
 end data_memory;
 
@@ -29,17 +25,10 @@ process(clk)
 begin
     if rising_edge(clk) then
         normal_addr := to_integer(unsigned(ALUResult(11 downto 2)));
-        if MemWrite = '1' and ALUResult(21) = '0' then
+        if MemWrite = '1' then
             RAM(normal_addr) <= WriteData;
         end if;
         ReadData <= RAM(normal_addr);
-    end if;
-end process;
-
-process(vga_clk)
-begin
-    if rising_edge(vga_clk) then
-        vga_pixel_on <= '0';
     end if;
 end process;
 

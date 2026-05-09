@@ -3,9 +3,9 @@ use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
 entity instructionfetch is
-Port ( 
+Port (
 clk, rst, jump, jump_reg, branch : in std_logic;
-branch_target : in std_logic_vector(15 downto 0); 
+branch_target : in std_logic_vector(15 downto 0);
 jump_target   : in std_logic_vector(25 downto 0);
 jump_reg_target : in std_logic_vector(31 downto 0);
 program_select : in std_logic_vector(2 downto 0);

@@ -20,8 +20,8 @@ begin
 if clk'event AND clk = '1' THEN
 if reset = '1' THEN
 pc_reg <= x"00000000";
-else 
-pc_reg <= din; 
+else
+pc_reg <= din;
 end if;
 end if;
 end process;

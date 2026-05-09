@@ -5,11 +5,8 @@ use IEEE.NUMERIC_STD.ALL; -- Added for PC arithmetic
 entity MIPSmicroprocessor is
   Port (
   clk : in std_logic;
+  reset : in std_logic;
   program_select : in std_logic_vector(2 downto 0);
-  vga_clk : in std_logic;
-  vga_pixel_x : in std_logic_vector(10 downto 0);
-  vga_pixel_y : in std_logic_vector(10 downto 0);
-  vga_pixel_on : out std_logic;
   ALUresult: out std_logic_vector(31 downto 0);
   Reg1, Reg2, Reg3, Reg4, Reg5, Reg6, Reg7, Reg8, Reg9, Reg10, Reg11, Reg12, Reg13, Reg14, Reg15, Reg16, Reg17, Reg18, Reg19, Reg20, Reg21, Reg22, Reg23, Reg24, Reg25, Reg26, Reg27, Reg28, Reg29, Reg30, Reg31 : OUT STD_LOGIC_VECTOR(31 DOWNTO 0)
   );
@@ -106,11 +103,7 @@ port (
     ALUResult : in std_logic_vector(31 downto 0); 
     WriteData : in std_logic_vector(31 downto 0); 
     MemWrite : in std_logic; 
-    ReadData : out std_logic_vector(31 downto 0);
-    vga_clk : in std_logic;
-    vga_pixel_x : in std_logic_vector(10 downto 0);
-    vga_pixel_y : in std_logic_vector(10 downto 0);
-    vga_pixel_on : out std_logic
+    ReadData : out std_logic_vector(31 downto 0)
 );
 end component;
 
@@ -158,7 +151,6 @@ signal BranchSignal: std_logic;
 signal BranchNESignal: std_logic;
 
 -- IF stage control --
-signal rst: std_logic := '0';
 signal jump: std_logic := '0';
 signal jump_target: std_logic_vector(25 downto 0);
 signal jump_signal : std_logic;
@@ -241,11 +233,11 @@ branch_target <= instrOUT(15 downto 0);
 
 InstrF: instructionfetch 
 PORT MAP (
-    clk => pc_clk, 
-    rst => rst, 
-    jump => jump_signal, 
+    clk => pc_clk,
+    rst => reset,
+    jump => jump_signal,
     jump_reg => jump_reg_signal,
-    branch => branch_taken, 
+    branch => branch_taken,
     branch_target => branch_target,
     jump_target => jump_target, 
     jump_reg_target => RD1out,
@@ -330,11 +322,7 @@ port map (
     ALUResult => ALUresultOut,
     WriteData => RD2out,
     MemWrite  => MemWriteSignal,
-    ReadData  => ReadData,
-    vga_clk => vga_clk,
-    vga_pixel_x => vga_pixel_x,
-    vga_pixel_y => vga_pixel_y,
-    vga_pixel_on => vga_pixel_on
+    ReadData  => ReadData
 );
 
 -- Adding clk wiz
