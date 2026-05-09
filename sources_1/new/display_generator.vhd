@@ -5,13 +5,17 @@ USE IEEE.NUMERIC_STD.ALL;
 
 ENTITY display_generator IS
     PORT (
+        -- Added Buttons for internal FSM Menu Control
+        BTNL           : IN STD_LOGIC;
+        BTNU           : IN STD_LOGIC;
+        BTND           : IN STD_LOGIC;
+        
         v_sync         : IN STD_LOGIC;
         pixel_row      : IN STD_LOGIC_VECTOR(10 DOWNTO 0);
         pixel_col      : IN STD_LOGIC_VECTOR(10 DOWNTO 0);
         ALUresult      : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
         Reg1, Reg2, Reg3, Reg4, Reg5, Reg6, Reg7, Reg8, Reg9, Reg10, Reg11, Reg12, Reg13, Reg14, Reg15, Reg16, Reg17, Reg18, Reg19, Reg20, Reg21, Reg22, Reg23, Reg24, Reg25, Reg26, Reg27, Reg28, Reg29, Reg30, Reg31 : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
-        program_select : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
-        menu_enable    : IN STD_LOGIC;
+        
         red            : OUT STD_LOGIC;
         green          : OUT STD_LOGIC;
         blue           : OUT STD_LOGIC
@@ -51,9 +55,53 @@ ARCHITECTURE Behavioral OF display_generator IS
     END FUNCTION;
 
     TYPE reg_array_t IS ARRAY (0 TO 31) OF STD_LOGIC_VECTOR(31 DOWNTO 0);
+    
+    -- FSM State Signals
+    SIGNAL btnl_reg, btnu_reg, btnd_reg : STD_LOGIC := '0';
+    SIGNAL menu_enable   : STD_LOGIC := '0';
+    SIGNAL menu_index    : INTEGER RANGE 0 TO 1 := 0; -- Change max bound to add more items
 
 BEGIN
-    PROCESS(pixel_row, pixel_col, ALUresult, Reg1, Reg2, Reg3, Reg4, Reg5, Reg6, Reg7, Reg8, Reg9, Reg10, Reg11, Reg12, Reg13, Reg14, Reg15, Reg16, Reg17, Reg18, Reg19, Reg20, Reg21, Reg22, Reg23, Reg24, Reg25, Reg26, Reg27, Reg28, Reg29, Reg30, Reg31, program_select, menu_enable)
+
+    -- =========================================================
+    -- FSM: MENU STATE AND BUTTON HANDLING (Using v_sync as 60Hz clock)
+    -- =========================================================
+    PROCESS(v_sync)
+    BEGIN
+        IF rising_edge(v_sync) THEN
+            -- BTNL Toggles Menu Enable (Edge Detection)
+            IF BTNL = '1' AND btnl_reg = '0' THEN
+                menu_enable <= NOT menu_enable;
+            END IF;
+            
+            -- BTNU/BTND Navigation (Only if menu is open)
+            IF menu_enable = '1' THEN
+                -- BTNU moves UP (Subtracts from index)
+                IF BTNU = '1' AND btnu_reg = '0' THEN
+                    IF menu_index > 0 THEN 
+                        menu_index <= menu_index - 1;
+                    END IF;
+                END IF;
+                
+                -- BTND moves DOWN (Adds to index)
+                IF BTND = '1' AND btnd_reg = '0' THEN
+                    IF menu_index < 1 THEN -- Currently 2 options (0 and 1)
+                        menu_index <= menu_index + 1;
+                    END IF;
+                END IF;
+            END IF;
+
+            -- Update edge detection registers
+            btnl_reg <= BTNL;
+            btnu_reg <= BTNU;
+            btnd_reg <= BTND;
+        END IF;
+    END PROCESS;
+
+    -- =========================================================
+    -- DISPLAY GENERATOR (Combinational Logic)
+    -- =========================================================
+    PROCESS(pixel_row, pixel_col, ALUresult, Reg1, Reg2, Reg3, Reg4, Reg5, Reg6, Reg7, Reg8, Reg9, Reg10, Reg11, Reg12, Reg13, Reg14, Reg15, Reg16, Reg17, Reg18, Reg19, Reg20, Reg21, Reg22, Reg23, Reg24, Reg25, Reg26, Reg27, Reg28, Reg29, Reg30, Reg31, menu_enable, menu_index)
         VARIABLE px_col, px_row : INTEGER;
         VARIABLE char_x, char_y, char_index : INTEGER;
         VARIABLE hex_digit : STD_LOGIC_VECTOR(3 DOWNTO 0);
@@ -61,7 +109,6 @@ BEGIN
         VARIABLE math_r, math_g, math_b : STD_LOGIC_VECTOR(10 DOWNTO 0);
         VARIABLE bg_r, bg_g, bg_b : STD_LOGIC;
         
-        -- Variables for iterating 32 registers
         VARIABLE all_regs : reg_array_t;
         VARIABLE reg_val : STD_LOGIC_VECTOR(31 DOWNTO 0);
         VARIABLE grid_row, grid_col : INTEGER;
@@ -71,7 +118,7 @@ BEGIN
         px_col := to_integer(unsigned(pixel_col));
         px_row := to_integer(unsigned(pixel_row));
 
-        -- Load all registers into an array so we can loop over them easily
+        -- Map all signals into standard array
         all_regs(0) := ALUresult; all_regs(1) := Reg1; all_regs(2) := Reg2; all_regs(3) := Reg3;
         all_regs(4) := Reg4; all_regs(5) := Reg5; all_regs(6) := Reg6; all_regs(7) := Reg7;
         all_regs(8) := Reg8; all_regs(9) := Reg9; all_regs(10) := Reg10; all_regs(11) := Reg11;
@@ -81,9 +128,7 @@ BEGIN
         all_regs(24) := Reg24; all_regs(25) := Reg25; all_regs(26) := Reg26; all_regs(27) := Reg27;
         all_regs(28) := Reg28; all_regs(29) := Reg29; all_regs(30) := Reg30; all_regs(31) := Reg31;
 
-        -- =========================================================
-        -- LAYERED CHAOS ART (Background)
-        -- =========================================================
+        -- 1. BACKGROUND ART
         math_r := (pixel_col + Reg1(10 DOWNTO 0)) XOR (pixel_row + Reg2(10 DOWNTO 0));
         bg_r   := math_r(5) XOR Reg3(4) XOR ALUresult(2);
 
@@ -99,47 +144,12 @@ BEGIN
             red <= bg_r; green <= bg_g; blue <= bg_b;
         END IF;
 
-        -- White Border around the edge
         IF (px_col < 10 OR px_col > 790 OR px_row < 10 OR px_row > 590) THEN
             red <= '1'; green <= '1'; blue <= '1';
         END IF;
 
-        -- =========================================================
-        -- FILE MANAGER MENU SYSTEM (Only visible if menu_enable = '1')
-        -- =========================================================
+        -- 2. FILE MANAGER UI (Visible if menu_enable = '1')
         IF menu_enable = '1' THEN
-            -- Header background box
-            IF (px_row >= 20 AND px_row < 90 AND px_col >= 20 AND px_col < 780) THEN
-                red <= '0'; green <= '0'; blue <= '1';
-                IF (px_row = 20 OR px_row = 89 OR px_col = 20 OR px_col = 779) THEN
-                    red <= '1'; green <= '1'; blue <= '1'; 
-                END IF;
-            END IF;
-
-            -- Program Title Display
-            IF (px_row >= 30 AND px_row < 38 AND px_col >= 30 AND px_col < 294) THEN
-                char_index := (px_col - 30) / 8;
-                char_x := (px_col - 30) MOD 8;
-                char_y := px_row - 30;
-                
-                CASE program_select IS
-                    WHEN "000" => 
-                        CASE char_index IS
-                            WHEN 0 => hex_digit := "0000"; -- F
-                            WHEN 1 => hex_digit := "1001"; -- 9
-                            WHEN 2 => hex_digit := "1011"; -- B
-                            WHEN others => hex_digit := "0000";
-                        END CASE;
-                    WHEN others => hex_digit := "0000";
-                END CASE;
-                
-                IF char_index < 3 THEN
-                    IF get_font_pixel(hex_digit, char_y, char_x) = '1' THEN
-                        red <= '1'; green <= '1'; blue <= '1';
-                    END IF;
-                END IF;
-            END IF;
-
             -- Menu Box
             IF (px_row >= 110 AND px_row < 350 AND px_col >= 50 AND px_col < 750) THEN
                 red <= '0'; green <= '0'; blue <= '0';
@@ -148,37 +158,22 @@ BEGIN
                 END IF;
             END IF;
 
-            -- OPTION 0: FIBONACCI
-            IF program_select = "000" THEN
-                IF (px_row >= 130 AND px_row < 160 AND px_col >= 70 AND px_col < 400) THEN
-                    red <= '0'; green <= '1'; blue <= '0'; 
-                    IF (px_row = 130 OR px_row = 159 OR px_col = 70 OR px_col = 399) THEN
-                        red <= '1'; green <= '1'; blue <= '1';
-                    END IF;
+            -- OPTION 0 (Top Item)
+            IF (px_row >= 130 AND px_row < 160 AND px_col >= 70 AND px_col < 400) THEN
+                IF menu_index = 0 THEN
+                    red <= '0'; green <= '1'; blue <= '0'; -- Highlight Green
+                ELSE
+                    red <= '0'; green <= '0'; blue <= '0';
                 END IF;
-            END IF;
-
-            IF (px_row >= 135 AND px_row < 143 AND px_col >= 80 AND px_col < 320) THEN
-                char_index := (px_col - 80) / 8;
-                char_x := (px_col - 80) MOD 8;
-                char_y := px_row - 135;
-                CASE char_index IS
-                    WHEN 0 => hex_digit := "0000"; -- F
-                    WHEN 1 => hex_digit := "1001"; -- 9
-                    WHEN 2 => hex_digit := "1011"; -- B
-                    WHEN others => hex_digit := "0000";
-                END CASE;
-                IF char_index < 3 THEN
-                    IF get_font_pixel(hex_digit, char_y, char_x) = '1' THEN
-                        red <= '1'; green <= '1'; blue <= '1';
-                    END IF;
+                IF (px_row = 130 OR px_row = 159 OR px_col = 70 OR px_col = 399) THEN
+                    red <= '1'; green <= '1'; blue <= '1';
                 END IF;
             END IF;
             
-            -- OPTION 1: PLACEHOLDER
+            -- OPTION 1 (Bottom Item)
             IF (px_row >= 180 AND px_row < 210 AND px_col >= 70 AND px_col < 400) THEN
-                IF program_select = "001" THEN
-                    red <= '0'; green <= '1'; blue <= '0'; 
+                IF menu_index = 1 THEN
+                    red <= '0'; green <= '1'; blue <= '0'; -- Highlight Green
                 ELSE
                     red <= '0'; green <= '0'; blue <= '0'; 
                 END IF;
@@ -188,26 +183,14 @@ BEGIN
             END IF;
         END IF;
 
-        -- =========================================================
-        -- 32-REGISTER DASHBOARD (Always Visible at Bottom)
-        -- =========================================================
+        -- 3. REGISTER DASHBOARD (32 Grid)
         IF (px_row >= 480 AND px_row < 590 AND px_col >= 10 AND px_col < 790) THEN
-            -- Black background for dashboard
             red <= '0'; green <= '0'; blue <= '0';
-            
-            -- Draw a white top border to separate it from the art
-            IF (px_row = 480) THEN
-                red <= '1'; green <= '1'; blue <= '1';
-            END IF;
+            IF (px_row = 480) THEN red <= '1'; green <= '1'; blue <= '1'; END IF;
 
-            -- Dynamically iterate and draw all 32 registers in a 4x8 Grid
             FOR i IN 0 TO 31 LOOP
-                grid_row := i / 8;        -- 0 to 3
-                grid_col := i MOD 8;      -- 0 to 7
-                
-                -- Calculate origin pixel for this specific register string
-                -- X: 20px padding + 95px per column
-                -- Y: 495px base + 20px per row
+                grid_row := i / 8;        
+                grid_col := i MOD 8;      
                 start_x := 20 + (grid_col * 95);
                 start_y := 495 + (grid_row * 20);
                 
@@ -220,11 +203,10 @@ BEGIN
                     hex_digit := get_hex_digit(reg_val, 7 - char_index);
                     
                     IF get_font_pixel(hex_digit, char_y, char_x) = '1' THEN 
-                        -- Make ALUresult (Reg 0) Red, others Green to stand out
                         IF i = 0 THEN
-                            red <= '1'; green <= '0'; blue <= '0';
+                            red <= '1'; green <= '0'; blue <= '0'; -- ALU red
                         ELSE
-                            red <= '0'; green <= '1'; blue <= '0';
+                            red <= '0'; green <= '1'; blue <= '0'; -- Regs green
                         END IF;
                     END IF;
                 END IF;
