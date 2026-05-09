@@ -5,6 +5,11 @@ use IEEE.NUMERIC_STD.ALL; -- Added for PC arithmetic
 entity MIPSmicroprocessor is
   Port (
   clk : in std_logic;
+  program_select : in std_logic_vector(2 downto 0);
+  vga_clk : in std_logic;
+  vga_pixel_x : in std_logic_vector(10 downto 0);
+  vga_pixel_y : in std_logic_vector(10 downto 0);
+  vga_pixel_on : out std_logic;
   ALUresult: out std_logic_vector(31 downto 0);
   Reg1, Reg2, Reg3, Reg4, Reg5, Reg6, Reg7, Reg8, Reg9, Reg10, Reg11, Reg12, Reg13, Reg14, Reg15, Reg16, Reg17, Reg18, Reg19, Reg20, Reg21, Reg22, Reg23, Reg24, Reg25, Reg26, Reg27, Reg28, Reg29, Reg30, Reg31 : OUT STD_LOGIC_VECTOR(31 DOWNTO 0)
   );
@@ -16,7 +21,8 @@ component alu
 port (
     SrcA : in std_logic_vector(31 downto 0);
     SrcB : in std_logic_vector(31 downto 0);
-    Operand : in std_logic_vector(2 downto 0);
+    Shamt : in std_logic_vector(4 downto 0);
+    Operand : in std_logic_vector(3 downto 0);
     Result : out std_logic_vector(31 downto 0);
     Flags : out std_logic_vector(3 downto 0)
     );
@@ -75,10 +81,12 @@ Port (
   funct : in std_logic_vector(5 downto 0);
   
   Jump       : out std_logic;
+  JumpReg    : out std_logic;
   MemtoReg   : out std_logic_vector(1 downto 0); -- CHANGED TO 2 BITS
   MemWrite   : out std_logic;
   Branch     : out std_logic;
-  ALUControl : out std_logic_vector(2 downto 0);
+  BranchNE   : out std_logic;
+  ALUControl : out std_logic_vector(3 downto 0);
   ALUSrc     : out std_logic;
   RegDst     : out std_logic_vector(1 downto 0); -- CHANGED TO 2 BITS
   RegWrite   : out std_logic 
@@ -98,7 +106,11 @@ port (
     ALUResult : in std_logic_vector(31 downto 0); 
     WriteData : in std_logic_vector(31 downto 0); 
     MemWrite : in std_logic; 
-    ReadData : out std_logic_vector(31 downto 0)
+    ReadData : out std_logic_vector(31 downto 0);
+    vga_clk : in std_logic;
+    vga_pixel_x : in std_logic_vector(10 downto 0);
+    vga_pixel_y : in std_logic_vector(10 downto 0);
+    vga_pixel_on : out std_logic
 );
 end component;
 
@@ -113,9 +125,11 @@ end component;
 
 component instructionfetch
 Port ( 
-clk, rst, jump, branch : in std_logic;
+clk, rst, jump, jump_reg, branch : in std_logic;
 branch_target : in std_logic_vector(15 downto 0);
 jump_target : in std_logic_vector(25 downto 0);
+jump_reg_target : in std_logic_vector(31 downto 0);
+program_select : in std_logic_vector(2 downto 0);
 instr, programcounter : out std_logic_vector(31 downto 0)
 );
 end component;
@@ -134,19 +148,21 @@ signal ALUFlags: std_logic_vector(3 downto 0);
 signal pc_clk: std_logic;
 
 -- Control signals --
-signal ALUControlSignal: STD_LOGIC_VECTOR(2 downto 0);
+signal ALUControlSignal: STD_LOGIC_VECTOR(3 downto 0);
 signal MemWriteSignal : STD_LOGIC;
 signal MemtoRegSignal: std_logic_vector(1 downto 0); -- CHANGED TO 2 BITS
 signal ALUSrcSignal: std_logic;
 signal RegDstSignal: std_logic_vector(1 downto 0);   -- CHANGED TO 2 BITS
 signal RegWriteSignal: std_logic;
 signal BranchSignal: std_logic;
+signal BranchNESignal: std_logic;
 
 -- IF stage control --
 signal rst: std_logic := '0';
 signal jump: std_logic := '0';
 signal jump_target: std_logic_vector(25 downto 0);
 signal jump_signal : std_logic;
+signal jump_reg_signal : std_logic;
 signal branch_target: std_logic_vector(15 downto 0);
 signal branch_taken: std_logic;
 
@@ -186,8 +202,6 @@ signal R31: STD_LOGIC_VECTOR(31 DOWNTO 0);
 
 begin
 -- Assigning the top level outputs to observe registers
-Reg1 <= R1;
-Reg2 <= R2;
 Reg1 <= R1;
 Reg2 <= R2;
 Reg3 <= R3;
@@ -230,9 +244,12 @@ PORT MAP (
     clk => pc_clk, 
     rst => rst, 
     jump => jump_signal, 
+    jump_reg => jump_reg_signal,
     branch => branch_taken, 
     branch_target => branch_target,
     jump_target => jump_target, 
+    jump_reg_target => RD1out,
+    program_select => program_select,
     instr => instrOUT, 
     programcounter => PCOut
 );
@@ -267,11 +284,13 @@ port map (
     MemtoReg   => MemtoRegSignal,
     MemWrite   => MemWriteSignal,
     Branch     => BranchSignal,
+    BranchNE   => BranchNESignal,
     ALUControl => ALUControlSignal,
     ALUSrc     => ALUSrcSignal,
     RegDst     => RegDstSignal,
     RegWrite   => RegWriteSignal,
-    Jump       => jump_signal
+    Jump       => jump_signal,
+    JumpReg    => jump_reg_signal
 );
 
 -- Sign Extension --
@@ -298,6 +317,7 @@ ALU1: alu
 port map (
     SrcA    => RD1out,
     SrcB    => ALUSrcMuxOut,
+    Shamt   => instrOUT(10 downto 6),
     Operand => ALUControlSignal,
     Result  => ALUresultOut,
     Flags   => ALUFlags
@@ -310,7 +330,11 @@ port map (
     ALUResult => ALUresultOut,
     WriteData => RD2out,
     MemWrite  => MemWriteSignal,
-    ReadData  => ReadData
+    ReadData  => ReadData,
+    vga_clk => vga_clk,
+    vga_pixel_x => vga_pixel_x,
+    vga_pixel_y => vga_pixel_y,
+    vga_pixel_on => vga_pixel_on
 );
 
 -- Adding clk wiz
@@ -329,6 +353,6 @@ with MemtoRegSignal select
                  (others => '0')                       when others;
 
 -- Branch decision --
-branch_taken <= BranchSignal and ALUFlags(0);
+branch_taken <= (BranchSignal and ALUFlags(2)) or (BranchNESignal and (not ALUFlags(2)));
 
 end Behavioral;

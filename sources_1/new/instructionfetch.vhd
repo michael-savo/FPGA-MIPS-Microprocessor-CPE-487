@@ -4,10 +4,12 @@ use IEEE.NUMERIC_STD.ALL;
 
 entity instructionfetch is
 Port ( 
-    clk, rst, jump, branch : in std_logic;
-    branch_target : in std_logic_vector(15 downto 0); 
-    jump_target   : in std_logic_vector(25 downto 0);
-    instr, programcounter : out std_logic_vector(31 downto 0)
+clk, rst, jump, jump_reg, branch : in std_logic;
+branch_target : in std_logic_vector(15 downto 0); 
+jump_target   : in std_logic_vector(25 downto 0);
+jump_reg_target : in std_logic_vector(31 downto 0);
+program_select : in std_logic_vector(2 downto 0);
+instr, programcounter : out std_logic_vector(31 downto 0)
 );
 end instructionfetch;
 
@@ -32,6 +34,7 @@ architecture Behavioral of instructionfetch is
     component instructionmemory is
     Port ( 
         addr  : in std_logic_vector(31 downto 0);
+        program_select : in std_logic_vector(2 downto 0);
         instr : out std_logic_vector(31 downto 0)
     );
     end component; 
@@ -49,6 +52,7 @@ begin
     i: instructionmemory
     port map(
         addr  => programc,
+        program_select => program_select,
         instr => instr
     );
 
@@ -67,7 +71,8 @@ begin
     j_target(25 downto 0)  <= jump_target;
 
     -- Next PC routing logic
-    pc_next <= j_target when jump = '1' else
+    pc_next <= jump_reg_target when jump_reg = '1' else
+               j_target when jump = '1' else
                b_target when branch = '1' else
                pc_plus1;
 

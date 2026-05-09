@@ -7,10 +7,12 @@ entity controlunit is
   funct : in std_logic_vector(5 downto 0);
   
   Jump       : out std_logic;
+  JumpReg    : out std_logic;
   MemtoReg   : out std_logic_vector(1 downto 0); -- Upgraded to 2 bits
   MemWrite   : out std_logic;
   Branch     : out std_logic;
-  ALUControl : out std_logic_vector(2 downto 0);
+  BranchNE   : out std_logic;
+  ALUControl : out std_logic_vector(3 downto 0);
   ALUSrc     : out std_logic;
   RegDst     : out std_logic_vector(1 downto 0); -- Upgraded to 2 bits
   RegWrite   : out std_logic 
@@ -26,15 +28,16 @@ begin
 MemtoReg <= "00";
 MemWrite <= '0';
 Branch <= '0';
+BranchNE <= '0';
 ALUSrc <= '0';
 RegDst <= "00";
 RegWrite <= '0';
-ALUControl <= "000";
+ALUControl <= "0010";
 Jump <= '0'; 
+JumpReg <= '0';
 
 case op is
     when "000000" => --R-type
-        RegWrite <= '1';
         RegDst <= "01"; -- 01 targets rd
         ALUSrc <= '0';
         Branch <= '0';
@@ -42,13 +45,35 @@ case op is
         MemtoReg <= "00"; -- 00 selects ALU result
         
         case Funct is
-            when "100000" => ALUControl <= "010"; --add
-            when "100010" => ALUControl <= "110"; --sub
-            when "100100" => ALUControl <= "000"; --and
-            when "100101" => ALUControl <= "001"; --or
-            when "101010" => ALUControl <= "111"; --slt
-            when others => ALUControl <= "XXX";
+            when "100000" => ALUControl <= "0010"; RegWrite <= '1'; -- add
+            when "100010" => ALUControl <= "0110"; RegWrite <= '1'; -- sub
+            when "100100" => ALUControl <= "0000"; RegWrite <= '1'; -- and
+            when "100101" => ALUControl <= "0001"; RegWrite <= '1'; -- or
+            when "100110" => ALUControl <= "0011"; RegWrite <= '1'; -- xor
+            when "101010" => ALUControl <= "0101"; RegWrite <= '1'; -- slt
+            when "000000" => ALUControl <= "0111"; RegWrite <= '1'; -- sll
+            when "000010" => ALUControl <= "1000"; RegWrite <= '1'; -- srl
+            when "000011" => ALUControl <= "1001"; RegWrite <= '1'; -- sra
+            when "000100" => ALUControl <= "1010"; RegWrite <= '1'; -- sllv
+            when "000110" => ALUControl <= "1011"; RegWrite <= '1'; -- srlv
+            when "000111" => ALUControl <= "1100"; RegWrite <= '1'; -- srav
+            when "001000" => ALUControl <= "0010"; RegWrite <= '0'; JumpReg <= '1'; -- jr
+            when others => ALUControl <= "0010"; RegWrite <= '0';
         end case;
+
+    when "011100" => -- SPECIAL2: mul rd, rs, rt
+        RegWrite <= '1';
+        RegDst <= "01";
+        ALUSrc <= '0';
+        Branch <= '0';
+        MemWrite <= '0';
+        MemtoReg <= "00";
+        if Funct = "000010" then
+            ALUControl <= "1101";
+        else
+            ALUControl <= "0010";
+            RegWrite <= '0';
+        end if;
 
     when "100011" => --lw
         RegWrite <= '1';
@@ -57,25 +82,25 @@ case op is
         Branch <= '0';
         MemWrite <= '0';
         MemtoReg <= "01"; -- 01 selects Data Memory
-        ALUControl <= "010";
+        ALUControl <= "0010";
 
     when "101011" => --sw
         RegWrite <= '0';
-        RegDst <= "--"; -- dont care
+        RegDst <= "00";
         ALUSrc <= '1';
         Branch <= '0';
         MemWrite <= '1';
-        MemtoReg <= "--"; -- dont care
-        ALUControl <= "010";
+        MemtoReg <= "00";
+        ALUControl <= "0010";
 
     when "000100" => --beq
         RegWrite <= '0';
-        RegDst <= "--"; -- dont care
+        RegDst <= "00";
         ALUSrc <= '0';
         Branch <= '1';
         MemWrite <= '0';
-        MemtoReg <= "--"; -- dont care
-        ALUControl <= "110";
+        MemtoReg <= "00";
+        ALUControl <= "0110";
 
     when "001000" => --addi
         RegWrite <= '1';
@@ -84,16 +109,17 @@ case op is
         Branch <= '0';
         MemWrite <= '0';
         MemtoReg <= "00";
-        ALUControl <= "010";
+        ALUControl <= "0010";
 
     when "000101" => --bne
         RegWrite <= '0';
-        RegDst <= "--"; -- dont care
+        RegDst <= "00";
         ALUSrc <= '0';
-        Branch <= '1';
+        Branch <= '0';
+        BranchNE <= '1';
         MemWrite <= '0';
-        MemtoReg <= "--"; -- dont care
-        ALUControl <= "110";
+        MemtoReg <= "00";
+        ALUControl <= "0110";
 
     when "001100" => --andi
         RegWrite <= '1';
@@ -102,7 +128,7 @@ case op is
         Branch <= '0';
         MemWrite <= '0';
         MemtoReg <= "00";
-        ALUControl <= "000";
+        ALUControl <= "0000";
 
     when "001101" => --ori
         RegWrite <= '1';
@@ -111,7 +137,7 @@ case op is
         Branch <= '0';
         MemWrite <= '0';
         MemtoReg <= "00";
-        ALUControl <= "001";
+        ALUControl <= "0001";
 
     when "001010" => --slti
         RegWrite <= '1';
@@ -120,7 +146,7 @@ case op is
         Branch <= '0';
         MemWrite <= '0';
         MemtoReg <= "00";
-        ALUControl <= "111";
+        ALUControl <= "0101";
 
     when "001111" => --LUI (Load Upper Immediate)
         RegWrite <= '1';
@@ -129,7 +155,7 @@ case op is
         Branch <= '0';
         MemWrite <= '0';
         MemtoReg <= "00";
-        ALUControl <= "100";
+        ALUControl <= "0100";
 
     when "001001" => --ADDIU (Add Immediate Unsigned)
         RegWrite <= '1';
@@ -138,26 +164,26 @@ case op is
         Branch <= '0';
         MemWrite <= '0';
         MemtoReg <= "00";
-        ALUControl <= "010";
+        ALUControl <= "0010";
 
     when "000010" => --J (Jump)
         RegWrite <= '0';
-        RegDst <= "--";
-        ALUSrc <= '-'; 
+        RegDst <= "00";
+        ALUSrc <= '0'; 
         Branch <= '0';
         MemWrite <= '0';
-        MemtoReg <= "--";
-        ALUControl <= "XXX";
+        MemtoReg <= "00";
+        ALUControl <= "0010";
         Jump <= '1'; -- FIRED
 
     when "000011" => --JAL (Jump and Link)
         RegWrite <= '1';
         RegDst <= "10";   -- 10 targets Register 31
-        ALUSrc <= '-';
+        ALUSrc <= '0';
         Branch <= '0';
         MemWrite <= '0';
         MemtoReg <= "10"; -- 10 selects PC path
-        ALUControl <= "XXX";
+        ALUControl <= "0010";
         Jump <= '1'; -- FIRED
 
     when others =>

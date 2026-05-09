@@ -70,7 +70,8 @@ RD2<= regfile(to_integer(unsigned(A2)));
 process(clk)
 begin
 if (clk'event and clk='1') then 
-if (WE3 = '1') then
+regfile(0) <= x"00000000";
+if (WE3 = '1' and A3 /= "00000") then
 regfile(conv_integer((A3)))<= WD3;
 end if;
 end if;

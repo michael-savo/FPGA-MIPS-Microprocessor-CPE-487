@@ -13,6 +13,7 @@ ENTITY display_generator IS
         v_sync         : IN STD_LOGIC;
         pixel_row      : IN STD_LOGIC_VECTOR(10 DOWNTO 0);
         pixel_col      : IN STD_LOGIC_VECTOR(10 DOWNTO 0);
+        framebuffer_pixel : IN STD_LOGIC;
         ALUresult      : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
         Reg1, Reg2, Reg3, Reg4, Reg5, Reg6, Reg7, Reg8, Reg9, Reg10, Reg11, Reg12, Reg13, Reg14, Reg15, Reg16, Reg17, Reg18, Reg19, Reg20, Reg21, Reg22, Reg23, Reg24, Reg25, Reg26, Reg27, Reg28, Reg29, Reg30, Reg31 : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
         
@@ -55,11 +56,47 @@ ARCHITECTURE Behavioral OF display_generator IS
     END FUNCTION;
 
     TYPE reg_array_t IS ARRAY (0 TO 31) OF STD_LOGIC_VECTOR(31 DOWNTO 0);
+
+    FUNCTION on_segment(px, py, x1, y1, x2, y2, thick : INTEGER) RETURN BOOLEAN IS
+        VARIABLE dx, dy : INTEGER;
+        VARIABLE cross : INTEGER;
+        VARIABLE limit : INTEGER;
+        VARIABLE min_x, max_x, min_y, max_y : INTEGER;
+    BEGIN
+        dx := x2 - x1;
+        dy := y2 - y1;
+        cross := ((px - x1) * dy) - ((py - y1) * dx);
+        IF cross < 0 THEN
+            cross := -cross;
+        END IF;
+
+        IF abs(dx) > abs(dy) THEN
+            limit := abs(dx) * thick;
+        ELSE
+            limit := abs(dy) * thick;
+        END IF;
+
+        IF x1 < x2 THEN
+            min_x := x1 - thick; max_x := x2 + thick;
+        ELSE
+            min_x := x2 - thick; max_x := x1 + thick;
+        END IF;
+
+        IF y1 < y2 THEN
+            min_y := y1 - thick; max_y := y2 + thick;
+        ELSE
+            min_y := y2 - thick; max_y := y1 + thick;
+        END IF;
+
+        RETURN px >= min_x AND px <= max_x AND py >= min_y AND py <= max_y AND cross <= limit;
+    END FUNCTION;
     
     -- FSM State Signals
     SIGNAL btnl_reg, btnu_reg, btnd_reg : STD_LOGIC := '0';
     SIGNAL menu_enable   : STD_LOGIC := '0';
     SIGNAL menu_index    : INTEGER RANGE 0 TO 1 := 0; -- Change max bound to add more items
+    SIGNAL lx0, ly0, lx1, ly1, lx2, ly2, lx3, ly3 : INTEGER RANGE 0 TO 2047 := 0;
+    SIGNAL lx4, ly4, lx5, ly5, lx6, ly6, lx7, ly7 : INTEGER RANGE 0 TO 2047 := 0;
 
 BEGIN
 
@@ -95,13 +132,31 @@ BEGIN
             btnl_reg <= BTNL;
             btnu_reg <= BTNU;
             btnd_reg <= BTND;
+
+            -- Latch one coherent CPU-computed cube for this VGA frame.
+            lx0 <= to_integer(unsigned(Reg12(10 DOWNTO 0)));
+            ly0 <= to_integer(unsigned(Reg13(10 DOWNTO 0)));
+            lx1 <= to_integer(unsigned(Reg14(10 DOWNTO 0)));
+            ly1 <= to_integer(unsigned(Reg15(10 DOWNTO 0)));
+            lx2 <= to_integer(unsigned(Reg16(10 DOWNTO 0)));
+            ly2 <= to_integer(unsigned(Reg17(10 DOWNTO 0)));
+            lx3 <= to_integer(unsigned(Reg18(10 DOWNTO 0)));
+            ly3 <= to_integer(unsigned(Reg19(10 DOWNTO 0)));
+            lx4 <= to_integer(unsigned(Reg20(10 DOWNTO 0)));
+            ly4 <= to_integer(unsigned(Reg21(10 DOWNTO 0)));
+            lx5 <= to_integer(unsigned(Reg22(10 DOWNTO 0)));
+            ly5 <= to_integer(unsigned(Reg23(10 DOWNTO 0)));
+            lx6 <= to_integer(unsigned(Reg24(10 DOWNTO 0)));
+            ly6 <= to_integer(unsigned(Reg25(10 DOWNTO 0)));
+            lx7 <= to_integer(unsigned(Reg26(10 DOWNTO 0)));
+            ly7 <= to_integer(unsigned(Reg27(10 DOWNTO 0)));
         END IF;
     END PROCESS;
 
     -- =========================================================
     -- DISPLAY GENERATOR (Combinational Logic)
     -- =========================================================
-    PROCESS(pixel_row, pixel_col, ALUresult, Reg1, Reg2, Reg3, Reg4, Reg5, Reg6, Reg7, Reg8, Reg9, Reg10, Reg11, Reg12, Reg13, Reg14, Reg15, Reg16, Reg17, Reg18, Reg19, Reg20, Reg21, Reg22, Reg23, Reg24, Reg25, Reg26, Reg27, Reg28, Reg29, Reg30, Reg31, menu_enable, menu_index)
+    PROCESS(pixel_row, pixel_col, framebuffer_pixel, ALUresult, Reg1, Reg2, Reg3, Reg4, Reg5, Reg6, Reg7, Reg8, Reg9, Reg10, Reg11, Reg12, Reg13, Reg14, Reg15, Reg16, Reg17, Reg18, Reg19, Reg20, Reg21, Reg22, Reg23, Reg24, Reg25, Reg26, Reg27, Reg28, Reg29, Reg30, Reg31, menu_enable, menu_index, lx0, ly0, lx1, ly1, lx2, ly2, lx3, ly3, lx4, ly4, lx5, ly5, lx6, ly6, lx7, ly7)
         VARIABLE px_col, px_row : INTEGER;
         VARIABLE char_x, char_y, char_index : INTEGER;
         VARIABLE hex_digit : STD_LOGIC_VECTOR(3 DOWNTO 0);
@@ -113,6 +168,9 @@ BEGIN
         VARIABLE reg_val : STD_LOGIC_VECTOR(31 DOWNTO 0);
         VARIABLE grid_row, grid_col : INTEGER;
         VARIABLE start_x, start_y : INTEGER;
+        VARIABLE x0, y0, x1, y1, x2, y2, x3, y3 : INTEGER;
+        VARIABLE x4, y4, x5, y5, x6, y6, x7, y7 : INTEGER;
+        VARIABLE cube_pixel : STD_LOGIC;
         
     BEGIN
         px_col := to_integer(unsigned(pixel_col));
@@ -128,20 +186,37 @@ BEGIN
         all_regs(24) := Reg24; all_regs(25) := Reg25; all_regs(26) := Reg26; all_regs(27) := Reg27;
         all_regs(28) := Reg28; all_regs(29) := Reg29; all_regs(30) := Reg30; all_regs(31) := Reg31;
 
-        -- 1. BACKGROUND ART
-        math_r := (pixel_col + Reg1(10 DOWNTO 0)) XOR (pixel_row + Reg2(10 DOWNTO 0));
-        bg_r   := math_r(5) XOR Reg3(4) XOR ALUresult(2);
+        -- 1. Rasterize CPU-computed cube vertices.
+        x0 := lx0; y0 := ly0;
+        x1 := lx1; y1 := ly1;
+        x2 := lx2; y2 := ly2;
+        x3 := lx3; y3 := ly3;
+        x4 := lx4; y4 := ly4;
+        x5 := lx5; y5 := ly5;
+        x6 := lx6; y6 := ly6;
+        x7 := lx7; y7 := ly7;
 
-        math_g := (pixel_col XOR Reg4(10 DOWNTO 0)) AND (pixel_row XOR Reg5(10 DOWNTO 0));
-        bg_g   := math_g(6) XOR Reg6(5);
+        cube_pixel := '0';
 
-        math_b := (pixel_col - Reg7(10 DOWNTO 0)) XOR (pixel_row - Reg8(10 DOWNTO 0));
-        bg_b   := math_b(4) XOR Reg9(3);
+        IF on_segment(px_col, px_row, x0, y0, x1, y1, 2) OR
+           on_segment(px_col, px_row, x1, y1, x2, y2, 2) OR
+           on_segment(px_col, px_row, x2, y2, x3, y3, 2) OR
+           on_segment(px_col, px_row, x3, y3, x0, y0, 2) OR
+           on_segment(px_col, px_row, x4, y4, x5, y5, 2) OR
+           on_segment(px_col, px_row, x5, y5, x6, y6, 2) OR
+           on_segment(px_col, px_row, x6, y6, x7, y7, 2) OR
+           on_segment(px_col, px_row, x7, y7, x4, y4, 2) OR
+           on_segment(px_col, px_row, x0, y0, x4, y4, 2) OR
+           on_segment(px_col, px_row, x1, y1, x5, y5, 2) OR
+           on_segment(px_col, px_row, x2, y2, x6, y6, 2) OR
+           on_segment(px_col, px_row, x3, y3, x7, y7, 2) THEN
+            cube_pixel := '1';
+        END IF;
 
-        IF Reg10(4) = '1' THEN
-            red <= NOT bg_r; green <= NOT bg_g; blue <= NOT bg_b;
+        IF cube_pixel = '1' THEN
+            red <= '1'; green <= '1'; blue <= '1';
         ELSE
-            red <= bg_r; green <= bg_g; blue <= bg_b;
+            red <= '0'; green <= '0'; blue <= '0';
         END IF;
 
         IF (px_col < 10 OR px_col > 790 OR px_row < 10 OR px_row > 590) THEN
@@ -183,8 +258,8 @@ BEGIN
             END IF;
         END IF;
 
-        -- 3. REGISTER DASHBOARD (32 Grid)
-        IF (px_row >= 480 AND px_row < 590 AND px_col >= 10 AND px_col < 790) THEN
+        -- 3. REGISTER DASHBOARD (32 Grid, visible only with menu)
+        IF menu_enable = '1' AND (px_row >= 480 AND px_row < 590 AND px_col >= 10 AND px_col < 790) THEN
             red <= '0'; green <= '0'; blue <= '0';
             IF (px_row = 480) THEN red <= '1'; green <= '1'; blue <= '1'; END IF;
 

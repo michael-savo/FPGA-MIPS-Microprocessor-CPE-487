@@ -1,29 +1,46 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
-use ieee.numeric_std.all;
+use IEEE.NUMERIC_STD.ALL;
 
 entity data_memory is
 port (
     clk : in std_logic;
-    ALUResult : in std_logic_vector(31 downto 0); --ALU
-    WriteData : in std_logic_vector(31 downto 0); --Register File
-    MemWrite : in std_logic; --Control Unit
-    ReadData : out std_logic_vector(31 downto 0)
+    ALUResult : in std_logic_vector(31 downto 0);
+    WriteData : in std_logic_vector(31 downto 0);
+    MemWrite : in std_logic;
+    ReadData : out std_logic_vector(31 downto 0);
+    vga_clk : in std_logic;
+    vga_pixel_x : in std_logic_vector(10 downto 0);
+    vga_pixel_y : in std_logic_vector(10 downto 0);
+    vga_pixel_on : out std_logic
 );
 end data_memory;
 
 architecture Behavioral of data_memory is
-    type ram_type is array (0 to 32767) of std_logic_vector(31 downto 0);
+    constant NORMAL_WORDS : integer := 1024;
+    type ram_type is array (0 to NORMAL_WORDS - 1) of std_logic_vector(31 downto 0);
     signal RAM : ram_type := (others => (others => '0'));
+    attribute ram_style : string;
+    attribute ram_style of RAM : signal is "block";
 begin
 
 process(clk)
+    variable normal_addr : integer range 0 to NORMAL_WORDS - 1;
 begin
     if rising_edge(clk) then
-        if MemWrite = '1' then
-            RAM(to_integer(unsigned(ALUResult(9 downto 2)))) <= WriteData;
+        normal_addr := to_integer(unsigned(ALUResult(11 downto 2)));
+        if MemWrite = '1' and ALUResult(21) = '0' then
+            RAM(normal_addr) <= WriteData;
         end if;
-        ReadData <= RAM(to_integer(unsigned(ALUResult(9 downto 2))));
-    end if;        
+        ReadData <= RAM(normal_addr);
+    end if;
 end process;
+
+process(vga_clk)
+begin
+    if rising_edge(vga_clk) then
+        vga_pixel_on <= '0';
+    end if;
+end process;
+
 end Behavioral;

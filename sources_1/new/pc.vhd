@@ -13,15 +13,17 @@ dout : out std_logic_vector(31 downto 0)
 end pc;
 
 architecture Behavioral of pc is
+signal pc_reg : std_logic_vector(31 downto 0) := x"00000000";
 begin
 process(reset, clk)
 begin
 if clk'event AND clk = '1' THEN
 if reset = '1' THEN
-dout <= x"00000000";
+pc_reg <= x"00000000";
 else 
-dout <= din; 
+pc_reg <= din; 
 end if;
 end if;
 end process;
+dout <= pc_reg;
 end Behavioral;
