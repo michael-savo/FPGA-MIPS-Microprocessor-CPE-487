@@ -13,8 +13,7 @@ port (
 end data_memory;
 
 architecture Behavioral of data_memory is
-    -- The Artix-7 has plenty of space, but let's start with 256 words (1KB).
-    type ram_type is array (0 to 255) of std_logic_vector(31 downto 0);
+    type ram_type is array (0 to 32767) of std_logic_vector(31 downto 0);
     signal RAM : ram_type := (others => (others => '0'));
 begin
 
