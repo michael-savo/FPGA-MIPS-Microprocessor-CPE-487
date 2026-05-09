@@ -24,8 +24,37 @@ COMPONENT MIPSmicroprocessor
     PORT (
         clk : IN STD_LOGIC;
         ALUresult : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
-        Reg1 : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
-        Reg2 : OUT STD_LOGIC_VECTOR(31 DOWNTO 0)
+        Reg1  : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+        Reg2  : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+        Reg3  : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+        Reg4  : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+        Reg5  : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+        Reg6  : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+        Reg7  : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+        Reg8  : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+        Reg9  : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+        Reg10 : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+        Reg11 : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+        Reg12 : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+        Reg13 : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+        Reg14 : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+        Reg15 : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+        Reg16 : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+        Reg17 : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+        Reg18 : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+        Reg19 : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+        Reg20 : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+        Reg21 : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+        Reg22 : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+        Reg23 : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+        Reg24 : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+        Reg25 : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+        Reg26 : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+        Reg27 : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+        Reg28 : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+        Reg29 : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+        Reg30 : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+        Reg31 : OUT STD_LOGIC_VECTOR(31 DOWNTO 0)
     );
 END COMPONENT;
 
@@ -47,13 +76,18 @@ END COMPONENT;
 
 COMPONENT display_generator
     PORT (
+        -- Add these new button inputs
+        BTNL           : IN STD_LOGIC;
+        BTNU           : IN STD_LOGIC;
+        BTND           : IN STD_LOGIC;
+        
         v_sync         : IN STD_LOGIC;
         pixel_row      : IN STD_LOGIC_VECTOR(10 DOWNTO 0);
         pixel_col      : IN STD_LOGIC_VECTOR(10 DOWNTO 0);
         ALUresult      : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
         Reg1, Reg2, Reg3, Reg4, Reg5, Reg6, Reg7, Reg8, Reg9, Reg10, Reg11, Reg12, Reg13, Reg14, Reg15, Reg16, Reg17, Reg18, Reg19, Reg20, Reg21, Reg22, Reg23, Reg24, Reg25, Reg26, Reg27, Reg28, Reg29, Reg30, Reg31 : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
-        program_select : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
-        menu_enable    : IN STD_LOGIC;  -- NEW: Controls menu visibility
+        
+        -- program_select and menu_enable have been REMOVED from here
         red            : OUT STD_LOGIC;
         green          : OUT STD_LOGIC;
         blue           : OUT STD_LOGIC
@@ -124,17 +158,45 @@ BEGIN
     PORT MAP (
         clk => mips_clk,
         ALUresult => ALUresult,
-        Reg1 => Reg1_out, Reg2 => Reg2_out
+        Reg1 => Reg1_out, 
+        Reg2 => Reg2_out,
+        Reg3 => Reg3_out,
+        Reg4 => Reg4_out,
+        Reg5 => Reg5_out,
+        Reg6 => Reg6_out,
+        Reg7 => Reg7_out,
+        Reg8 => Reg8_out,
+        Reg9 => Reg9_out,
+        Reg10 => Reg10_out,
+        Reg11 => Reg11_out,
+        Reg12 => Reg12_out,
+        Reg13 => Reg13_out,
+        Reg14 => Reg14_out,
+        Reg15 => Reg15_out,
+        Reg16 => Reg16_out,
+        Reg17 => Reg17_out,
+        Reg18 => Reg18_out,
+        Reg19 => Reg19_out,
+        Reg20 => Reg20_out,
+        Reg21 => Reg21_out,
+        Reg22 => Reg22_out,
+        Reg23 => Reg23_out,
+        Reg24 => Reg24_out,
+        Reg25 => Reg25_out,
+        Reg26 => Reg26_out,
+        Reg27 => Reg27_out,
+        Reg28 => Reg28_out,
+        Reg29 => Reg29_out,
+        Reg30 => Reg30_out,
+        Reg31 => Reg31_out
     );
 
     -- Instantiate Display Generator
     DG : display_generator
     PORT MAP (
-        v_sync => S_vsync, pixel_row => S_pixel_row, pixel_col => S_pixel_col,
+        BTNL => BTNL, BTNU => BTNU, BTND => BTND, v_sync => S_vsync, pixel_row => S_pixel_row, pixel_col => S_pixel_col,
         ALUresult => ALUresult,
         Reg1 => Reg1_out, Reg2 => Reg2_out, Reg3 => Reg3_out, Reg4 => Reg4_out, Reg5 => Reg5_out, Reg6 => Reg6_out, Reg7 => Reg7_out, Reg8 => Reg8_out, Reg9 => Reg9_out, Reg10 => Reg10_out, Reg11 => Reg11_out, Reg12 => Reg12_out, Reg13 => Reg13_out, Reg14 => Reg14_out, Reg15 => Reg15_out, Reg16 => Reg16_out, Reg17 => Reg17_out, Reg18 => Reg18_out, Reg19 => Reg19_out, Reg20 => Reg20_out, Reg21 => Reg21_out, Reg22 => Reg22_out, Reg23 => Reg23_out, Reg24 => Reg24_out, Reg25 => Reg25_out, Reg26 => Reg26_out, Reg27 => Reg27_out, Reg28 => Reg28_out, Reg29 => Reg29_out, Reg30 => Reg30_out, Reg31 => Reg31_out,
-        program_select => S_program_select,
-        menu_enable => S_menu_enable,
         red => S_red, green => S_green, blue => S_blue
     );
 
