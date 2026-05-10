@@ -9,9 +9,9 @@ ENTITY FPGAtop IS
         BTNU       : IN STD_LOGIC;
         BTND       : IN STD_LOGIC;
         BTNL       : IN STD_LOGIC;
-        vga_red    : OUT STD_LOGIC_VECTOR (2 DOWNTO 0);
-        vga_green  : OUT STD_LOGIC_VECTOR (2 DOWNTO 0);
-        vga_blue   : OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
+        vga_red    : OUT STD_LOGIC_VECTOR (3 DOWNTO 0);
+        vga_green  : OUT STD_LOGIC_VECTOR (3 DOWNTO 0);
+        vga_blue   : OUT STD_LOGIC_VECTOR (3 DOWNTO 0);
         vga_hsync  : OUT STD_LOGIC;
         vga_vsync  : OUT STD_LOGIC
     );
@@ -104,6 +104,7 @@ END COMPONENT;
 
 SIGNAL pxl_clk : STD_LOGIC;
 SIGNAL S_red, S_green, S_blue : STD_LOGIC;
+SIGNAL S_vga_red, S_vga_green, S_vga_blue : STD_LOGIC;
 SIGNAL S_vsync : STD_LOGIC;
 SIGNAL S_pixel_row, S_pixel_col : STD_LOGIC_VECTOR(10 DOWNTO 0);
 SIGNAL ALUresult : STD_LOGIC_VECTOR(31 DOWNTO 0);
@@ -192,15 +193,15 @@ BEGIN
     VGA_SYNC_INST : vga_sync
     PORT MAP (
         pixel_clk => pxl_clk, red_in => S_red, green_in => S_green, blue_in => S_blue,
-        red_out => vga_red(2), green_out => vga_green(2), blue_out => vga_blue(1),
+        red_out => S_vga_red, green_out => S_vga_green, blue_out => S_vga_blue,
         hsync => vga_hsync, vsync => S_vsync, pixel_row => S_pixel_row, pixel_col => S_pixel_col
     );
     vga_vsync <= S_vsync;
 
-    -- Set unused color bits to 0
-    vga_red(1 DOWNTO 0) <= "00";
-    vga_green(1 DOWNTO 0) <= "00";
-    vga_blue(0) <= '0';
+    -- Drive every available DAC bit for full-scale brightness.
+    vga_red <= (OTHERS => S_vga_red);
+    vga_green <= (OTHERS => S_vga_green);
+    vga_blue <= (OTHERS => S_vga_blue);
 
     -- Instantiate Clock Wizard
     CLK_WIZ_INST : clk_wiz_0
