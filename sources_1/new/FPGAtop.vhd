@@ -136,7 +136,8 @@ BEGIN
     
     -- Slow the CPU so VGA sees stable cube-coordinate updates instead of
     -- many geometry changes during one screen scan.
-    mips_clk <= mips_clk_div(14);
+    -- Makes it so that the clock is slower when the FIBO program is running
+    mips_clk <= mips_clk_div(19) WHEN S_program_select = "000" ELSE mips_clk_div(14);
     S_mips_reset <= '1' WHEN S_mips_reset_counter /= X"00" ELSE '0';
     
     -- Instantiate MIPS Processor
