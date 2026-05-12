@@ -37,11 +37,11 @@ Include:
 
 Our procesor is modelled off this single-cycle diagram. Each area highlighted is roughly what group of components it corresponds to. 
 
-![](./images/RenderedVideo.mov)
+![Video of our Cube spinning. Path: ./images/RenderedVideo.mov](./images/RenderedVideo.mov)
 
 This is a video of our Cube program. It uses sine and cosine approximations to find the vertices. 
 
-![](images/80023541081__381BFAF5-C00E-43DB-99CE-1197B2DE273A.mov)
+![Video of our Fibonacci Sequence Visualizer. Path:./images/80023541081__381BFAF5-C00E-43DB-99CE-1197B2DE273A.mov ](./images/80023541081__381BFAF5-C00E-43DB-99CE-1197B2DE273A.mov)
 
 This is a video of our Fibonacci Sequence Visualizer. It feeds Fibonacci sequence numbers into pixel data and it showcases the output. We slowed the clock down so it can be seen easier.
 
