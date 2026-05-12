@@ -1,30 +1,268 @@
-# Single Cycle MIPS-I processor using VHDL
-This project emulates an MIPS-I processor using VHDL on the Nexys A7-100T Trainer board. The project is a general purpose processor that has two programs installed. 
-A 3D spinning cube that is built through the instructions and displayed through VGA and the fibonacci sequence visualized through VGA. 
+# Single Cycle MIPS-I Processor Using VHDL
 
-This project was designed for CPE 487 at Stevens Institute of Technology and is no longer being updated.
-Some AI was used to generate the programs but all processor-related code is human-made.
+## Project Overview
 
-### Tools used
--FPGA: Nexys A7-100T Trainer board
--Display: VGA Male to HDMI Female connector, VGA Cable, HDMI cable, Micro USB-B power supply
+This project emulates a MIPS-I processor using VHDL on the Nexys A7-100T Trainer board.
 
-### Processor
-This project was initially to emulate a PS1 which uses an R3000A chip. 
+Fill in:
+- What the processor is designed to do
+- What programs are included
+- What a user should see when the project is running
+- Why this project was chosen
 
-## Submission (80% of your project grade):
-* Your final submission should be a github repository of very similar format to the labs themselves with an opening README document with the expected components as follows:
-	* A description of the expected behavior of the project, attachments needed (speaker module, VGA connector, etc.), related images/diagrams, etc. (10 points of the Submission category)
-		* The more detailed the better – you all know how much I love a good finite state machine and Boolean logic, so those could be some good ideas if appropriate for your system. If not, some kind of high level block diagram showing how different parts of your program connect together and/or showing how what you have created might fit into a more complete system could be appropriate instead.
-	* A summary of the steps to get the project to work in Vivado and on the Nexys board (5 points of the Submission category)
- 	* Description of inputs from and outputs to the Nexys board from the Vivado project (10 points of the Submission category)
-  		* As part of this category, if using starter code of some kind (discussed below), you should add at least one input and at least one output appropriate to your project to demonstrate your understanding of modifying the ports of your various architectures and components in VHDL as well as the separate .xdc constraints file.
-	* Images and/or videos of the project in action interspersed throughout to provide context (10 points of the Submission category)
-	* “Modifications” (15 points of the Submission category)
-		* If building on an existing lab or expansive starter code of some kind, describe your “modifications” – the changes made to that starter code to improve the code, create entirely new functionalities, etc. Unless you were starting from one of the labs, please share any starter code used as well, including crediting the creator(s) of any code used. It is perfectly ok to start with a lab or other code you find as a baseline, but you will be judged on your contributions on top of that pre-existing code!
-		* If you truly created your code/project from scratch, summarize that process here in place of the above.
-	* Conclude with a summary of the process itself – who was responsible for what components (preferably also shown by each person contributing to the github repository!), the timeline of work completed, any difficulties encountered and how they were solved, etc. (10 points of the Submission category)
-* And of course, the code itself separated into appropriate .vhd and .xdc files. (50 points of the Submission category; based on the code working, code complexity, quantity/quality of modifications, etc.)
-* You are not really expected to be github experts – as long as one of you can confidently create the repository and help others add to it, that should be sufficient. If no group members fall under this criteria, discuss with me as soon as possible.
-	* This is a group assignment, and for the most part you are graded as a group. I reserve the right to modify single student grades for extenuating circumstances, such as a clear lack of participation from a group member. You are allowed to rely on the expertise of your group members in certain aspects of the project, but you should all have at least a cursory understanding of all aspects of your project.
- * One additional note: You MAY use genAI or similar tools to assist with formatting your github repo, to create starter code that you then further modify to meet your final project objectives, or to assist you for troubleshooting or similar tasks. You MUST cite any occurrences of you doing so. You MAY NOT use genAI to do your project for you, or to completely write your repo's content for you. GenAI does not know what you actually did for your project - only you do!
+Current notes:
+- The project includes a 3D spinning cube displayed through VGA.
+- The project includes a Fibonacci sequence visualization displayed through VGA.
+- The project was designed for CPE 487 at Stevens Institute of Technology.
+- This project was initially inspired by the PlayStation 1 R3000A processor.
+
+## Expected Behavior
+
+Describe the expected behavior of the finished project.
+
+Include:
+- What happens when the FPGA is programmed
+- What appears on the display
+- How the user selects or interacts with the included programs
+- What behavior confirms that the processor is working correctly
+- Any known limitations or expected edge cases
+
+## Required Hardware and Attachments
+
+List all hardware needed to run the project.
+
+Current hardware:
+- Nexys A7-100T Trainer board
+- VGA male to HDMI female connector
+- VGA cable
+- HDMI cable
+- Micro USB-B power supply/programming cable
+
+Add if applicable:
+- External monitor
+- Switches, buttons, LEDs, or seven-segment display usage
+- Any other required modules or cables
+
+## System Design
+
+Describe the high-level design of the project.
+
+Include:
+- Processor architecture overview
+- Major VHDL components/modules
+- How instruction memory, control, datapath, registers, ALU, and VGA output connect
+- How the included programs are stored and executed
+- Any finite state machines, Boolean logic, or control diagrams
+
+Suggested diagrams/images to add:
+- High-level block diagram
+- Datapath diagram
+- Control unit diagram
+- VGA output pipeline diagram
+- Program flow diagram for the cube or Fibonacci visualization
+
+Image placeholders:
+
+```md
+![High-level block diagram](docs/images/block-diagram.png)
+![Datapath diagram](docs/images/datapath.png)
+```
+
+## Vivado Setup and Build Instructions
+
+Summarize the steps needed to get the project working in Vivado and on the Nexys board.
+
+Fill in:
+1. Open Vivado.
+2. Create or open the project.
+3. Add the required `.vhd` source files.
+4. Add the required `.xdc` constraints file.
+5. Select the Nexys A7-100T board or correct FPGA part.
+6. Run synthesis.
+7. Run implementation.
+8. Generate the bitstream.
+9. Connect the Nexys board.
+10. Program the board.
+11. Connect the display and confirm output.
+
+Add details for:
+- Vivado version used
+- Board/part number
+- Any project settings that must be changed
+- Any memory/program files that must be loaded
+- Common setup issues and fixes
+
+## Nexys Board Inputs and Outputs
+
+Describe all inputs from and outputs to the Nexys board.
+
+Inputs:
+- Clock:
+- Reset:
+- Switches:
+- Buttons:
+- Other inputs:
+
+Outputs:
+- VGA red:
+- VGA green:
+- VGA blue:
+- VGA horizontal sync:
+- VGA vertical sync:
+- LEDs:
+- Seven-segment display:
+- Other outputs:
+
+Also explain:
+- Which ports were added or modified
+- How the `.xdc` constraints map VHDL ports to board pins
+- How the inputs and outputs demonstrate changes to the VHDL architectures/components
+
+## Project Demonstration
+
+Add images and/or videos of the project in action.
+
+Include:
+- Photo of the FPGA setup
+- Photo or screenshot of the VGA output
+- Video of the spinning cube
+- Video or photo of the Fibonacci visualization
+- Any debug/test output that helps explain the system
+
+Media placeholders:
+
+```md
+![FPGA setup](docs/images/fpga-setup.jpg)
+![VGA cube output](docs/images/cube-output.jpg)
+![Fibonacci output](docs/images/fibonacci-output.jpg)
+
+[Spinning cube demo](docs/videos/cube-demo.mp4)
+[Fibonacci demo](docs/videos/fibonacci-demo.mp4)
+```
+
+## Modifications and Original Contributions
+
+Explain what code or project material was created, modified, or reused.
+
+If starter code or lab code was used:
+- Name the starter code or lab
+- Credit the original creator/source
+- Describe what was changed
+- Describe what new functionality was added
+- Explain why the modifications were important
+
+If the project was created from scratch:
+- Summarize the design process
+- Explain how the processor was built
+- Explain how the VGA programs were created
+- Describe the most important implementation decisions
+
+Current note:
+- Some AI was used to generate the programs.
+- All processor-related code is human-made.
+
+Add required AI citation details:
+- What tool was used
+- What it was used for
+- Which files or sections were affected
+- What was reviewed, changed, or written manually afterward
+
+## Code Organization
+
+Describe how the repository is organized.
+
+Fill in the purpose of each major file/folder:
+
+```txt
+/
+├── README.md
+├── src/
+│   ├── ...
+├── constraints/
+│   ├── ...
+├── docs/
+│   ├── images/
+│   └── videos/
+└── ...
+```
+
+Mention:
+- Main top-level VHDL file
+- Processor component files
+- Program/memory files
+- Constraint files
+- Testbench files, if any
+
+## Testing and Verification
+
+Describe how the project was tested.
+
+Include:
+- Simulation tests performed
+- Vivado synthesis/implementation results
+- Board testing steps
+- How the cube program was verified
+- How the Fibonacci program was verified
+- Bugs found during testing and how they were fixed
+
+## Team Contributions
+
+Summarize who was responsible for each part of the project.
+
+| Team Member | Contributions |
+| --- | --- |
+| Name | Processor/datapath/control/etc. |
+| Name | VGA/programs/testing/etc. |
+| Name | Documentation/Vivado setup/etc. |
+
+Also mention:
+- How GitHub was used by the group
+- Whether commits reflect individual contributions
+- Any shared responsibilities
+
+## Project Timeline
+
+Summarize the timeline of work completed.
+
+| Date/Week | Work Completed |
+| --- | --- |
+| Week 1 | Project idea and initial design |
+| Week 2 | Processor components |
+| Week 3 | VGA output |
+| Week 4 | Program integration |
+| Week 5 | Testing and documentation |
+
+## Difficulties and Solutions
+
+Describe problems encountered and how they were solved.
+
+Include:
+- VHDL design issues
+- Vivado setup or synthesis issues
+- VGA/display issues
+- Processor instruction/program issues
+- Hardware/debugging issues
+- Team coordination issues, if relevant
+
+## Final Summary
+
+Conclude with a short summary of:
+- What was accomplished
+- What worked successfully
+- What could be improved in the future
+- What was learned from the project
+
+## Submission Checklist
+
+- [ ] Project behavior is clearly described.
+- [ ] Required hardware and attachments are listed.
+- [ ] System diagrams/images are included.
+- [ ] Vivado setup steps are documented.
+- [ ] Nexys board inputs and outputs are described.
+- [ ] Images/videos of the project are included.
+- [ ] Starter code, modifications, and original contributions are explained.
+- [ ] AI usage is cited.
+- [ ] Team contributions are listed.
+- [ ] Timeline is included.
+- [ ] Difficulties and solutions are summarized.
+- [ ] Code is organized into appropriate `.vhd` and `.xdc` files.
