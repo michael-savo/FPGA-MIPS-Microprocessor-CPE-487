@@ -95,7 +95,7 @@ port map(
     program_select => program_select,
     instr          => instr
 );
-
+```
 ## Modifications and Original Contributions
 
 Our original process was to create a Playstation 1 emulator on the FPGA. The Playstation 1 uses the R3000A as its main processor which simplified a lot of the choices we needed to make. It is a 32-bit pipelined processor that uses the MIPS-I ISA. We chose to make a 32 bit single-cycled processor that also uses the MIPS-I ISA. If time would have allowed, we would have created a pipelined processor instead but after implementing a fully working single cycle CPU, we realized that we had nowhere near enough time for a project this ambitious. We still wanted to showcase what our processor can do and how well it can handle what we throw at it. We chose to showcase this process through graphics handling. The Cube program uses a phase counter in $6. Each cycle it computes a triangle-wave approximation of sine and cosine into $8 and $9. Through the ALU, it can project the 3D coordinates on a 2D plane. The Fibonacci Sequence Visualizer stores the different numbers in $1-10 and feeds those into display generator for the VGA cable to convert into pixel data. 
