@@ -12,8 +12,7 @@ When the FPGA is on and connected to a display through VGA, the Fibonacci Sequen
 
 ## Required Hardware and Attachments
 
-Current hardware:
-- Nexys A7-100T Trainer board
+- Nexys A7-100T Trainer board including the on-board buttons
   ![](https://cdn11.bigcommerce.com/s-7gavg/images/stencil/1280x1280/products/629/5235/NexysA7-obl-600__85101.1670975737.jpg?c=2 "Nexys A7 board. Image from Digilent")
 
 - VGA male to HDMI female connector
@@ -31,33 +30,24 @@ Current hardware:
 - External monitor
   ![](https://upload.wikimedia.org/wikipedia/commons/thumb/7/76/MonitorLCDlcd.svg/1920px-MonitorLCDlcd.svg.png "Monitor")
   
-- On-board buttons
-
 ## System Design
 
 Include:
-![](./mips.png "D. Harris and S. Harris, Digital Design and Computer Architecture, 2nd ed. Waltham, MA, USA: Morgan Kaufmann, 2012. Figure 7.11") 
-- Processor architecture overview
-- Major VHDL components/modules
-- How instruction memory, control, datapath, registers, ALU, and VGA output connect
-- How the included programs are stored and executed
-- Any finite state machines, Boolean logic, or control diagrams
+![](./images/mips.png "D. Harris and S. Harris, Digital Design and Computer Architecture, 2nd ed. Waltham, MA, USA: Morgan Kaufmann, 2012. Figure 7.11") 
 
 Our procesor is modelled off this single-cycle diagram. Each area highlighted is roughly what group of components it corresponds to. 
 
-Suggested diagrams/images to add:
-- High-level block diagram
-- Datapath diagram
-- Control unit diagram
-- VGA output pipeline diagram
-- Program flow diagram for the cube or Fibonacci visualization
+![](./images/RenderedVideo.mov)
 
-Image placeholders:
+This is a video of our Cube program. It uses sine and cosine approximations to find the vertices. 
 
-```md
-![High-level block diagram](docs/images/block-diagram.png)
-![Datapath diagram](docs/images/datapath.png)
-```
+![](images/80023541081__381BFAF5-C00E-43DB-99CE-1197B2DE273A.mov)
+
+This is a video of our Fibonacci Sequence Visualizer. It feeds Fibonacci sequence numbers into pixel data and it showcases the output. We slowed the clock down so it can be seen easier.
+
+![](./images/FSM.png)
+
+This is the FSM on how our file manager works. It starts by waiting for the Left button to be toggled. If it toggles, then it opens the menu. While it's toggled then you can move between programs using the up and down buttons on the board. Press the toggle button again to close the file manager. 
 
 ## Vivado Setup and Build Instructions
 1. Open Vivado.
@@ -103,41 +93,11 @@ There are hundreds of inputs and outputs in this system that work as both. Looki
         program_select => program_select,
         instr => instr
     );
+`
 
-` 
 This was pulled from `instructionfetch.vhd` and it shows how our CPU knows what instruction to perform next. We input the next address into the program counter so it can update on the next clock cycle and feed the current address into our instruction fetch so it can determine what to do with it. 
 
-## Project Demonstration
-
-Add images and/or videos of the project in action.
-
-Include:
-- Photo of the FPGA setup
-- Photo or screenshot of the VGA output
-- Video of the spinning cube
-- Video or photo of the Fibonacci visualization
-- Any debug/test output that helps explain the system
-
-Media placeholders:
-
-```md
-![FPGA setup](docs/images/fpga-setup.jpg)
-![VGA cube output](docs/images/cube-output.jpg)
-![Fibonacci output](docs/images/fibonacci-output.jpg)
-
-[Spinning cube demo](docs/videos/cube-demo.mp4)
-[Fibonacci demo](docs/videos/fibonacci-demo.mp4)
-```
-
 ## Modifications and Original Contributions
-
-Explain what code or project material was created, modified, or reused.
-
-If the project was created from scratch:
-- Summarize the design process
-- Explain how the processor was built
-- Explain how the VGA programs were created
-- Describe the most important implementation decisions
 
 Our original process was to create a Playstation 1 emulator on the FPGA. The Playstation 1 uses the R3000A as its main processor which simplified a lot of the choices we needed to make. It is a 32-bit pipelined processor that uses the MIPS-I ISA. We chose to make a 32 bit single-cycled processor that also uses the MIPS-I ISA. If time would have allowed, we would have created a pipelined processor instead but after implementing a fully working single cycle CPU, we realized that we had nowhere near enough time for a project this ambitious. We still wanted to showcase what our processor can do and how well it can handle what we throw at it. We chose to showcase this process through graphics handling. The Cube program uses a phase counter in $6. Each cycle it computes a triangle-wave approximation of sine and cosine into $8 and $9. Through the ALU, it can project the 3D coordinates on a 2D plane. The Fibonacci Sequence Visualizer stores the different numbers in $1-10 and feeds those into display generator for the VGA cable to convert into pixel data. 
 
@@ -148,10 +108,6 @@ A decision we chose to save time with was using AI to code our programs. AI was 
 Also, `VGA_Sync.vhd` and `VGA_top.vhd` are originally from Lab 3. They were copied and pasted in full and were barely changed over the course of this project. 
 
 ## Code Organization
-
-Describe how the repository is organized.
-
-Fill in the purpose of each major file/folder:
 
 ```txt
 /
@@ -182,19 +138,11 @@ Fill in the purpose of each major file/folder:
 └── ...
 ```
 
-Mention:
-Our processor imports almost everything into the top two modules, `FPGA_top.VHD` and `MIPSmicroprocessor.VHD` except for our instruction fetch top module. That uses
+Our processor imports almost everything into the top two modules, `FPGA_top.VHD` and `MIPSmicroprocessor.VHD` except for our instruction fetch top module. That has instruction memory and our PC ported in. Altogether it moves the instructions around so our CPU can perform the correct instructions in the correct order. `VGA_sync.vhd` and `VGA_top.vhd` handle the driver and communication between the board and the VGA cable. `Display_generator.VHD` takes data from our registers and manages it to feed to the VGA drivers. All CPU components are explained in the System Design section above. 
+
 ## Testing and Verification
 
-Describe how the project was tested.
-
-Include:
-- Simulation tests performed
-- Vivado synthesis/implementation results
-- Board testing steps
-- How the cube program was verified
-- How the Fibonacci program was verified
-- Bugs found during testing and how they were fixed
+We had issues making a testbench that accurately showed the values of the register and instructions being performed. It wasn't until we started testing on the physical board that we began fixing these problems. We could have done a better job organizing the project in hindsight but overall, we did not have many issues with this project. We initially started with visualizing our registers on the board, once we saw the register values changing we knew that meant our CPU could perform some instructions. Feeding it more instructions and giving it other instructions is how we continued to improve and test if they worked. We know our programs work because they visualize what we expect and there is no real testing or debugging needed. 
 
 ## Team Contributions
 
@@ -225,24 +173,5 @@ We had issues on figuring out how much time it would take us for a PS1 emulator 
 
 ## Final Summary
 
-Conclude with a short summary of:
-- What was accomplished
-- What worked successfully
-- What could be improved in the future
-- What was learned from the project
+In conclusion, we created a general purpose single cycle processor that was able to open different programs and display 3D rendered graphics. Some future improvements on this project could be transtiioning it from single-cycle to pipelined, adding memory, adding I/O support, optimizing display_generator.vhd to use a framebuffer in data memory, optimizing the display to showcase tiles, and more. We learned a lot about how computers function, specifically a lot more in the memory, graphics, and display areas. This project was very valuable and I hope future students add onto it and hopefully finish our goal of creating a PS1 emulator. 
 
-In conclusion, we created a general purpose single cycle processor that was able to open different programs and display 3D rendered graphics. Some future improvements on this project could be transtiioning it from single-cycle to pipelined, adding memory, adding I/O support, optimizing display_generator.vhd to use a framebuffer in data memory, optimizing the display to showcase tiles, and more. 
-## Submission Checklist
-
-- [ ] Project behavior is clearly described.
-- [ ] Required hardware and attachments are listed.
-- [ ] System diagrams/images are included.
-- [ ] Vivado setup steps are documented.
-- [ ] Nexys board inputs and outputs are described.
-- [ ] Images/videos of the project are included.
-- [ ] Starter code, modifications, and original contributions are explained.
-- [ ] AI usage is cited.
-- [ ] Team contributions are listed.
-- [ ] Timeline is included.
-- [ ] Difficulties and solutions are summarized.
-- [ ] Code is organized into appropriate `.vhd` and `.xdc` files.
