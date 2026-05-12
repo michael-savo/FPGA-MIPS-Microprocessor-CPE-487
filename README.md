@@ -8,7 +8,7 @@ The processor was designed to be a general purpose processor, capable of graphic
 ## Expected Behavior
 When the FPGA is on and connected to a display through VGA, the Fibonacci Sequence Visualizer should be on the screen. It consists of many squares and sections flashing colors. The file manager uses the on-board buttons to toggle it on and move between our two programs. While the file manager is open, there will be a menu on the bottom of all 32 registers and their values. Once manuevered over to the Cube program, you will see a cube spinning about the z-axis. A register increments the phase angle of the cube which may result in a numerical overflow if the Cube program is left on for too long. 
 
-# **WARNING: The Fibonacci Sequence Visualizer shows bright flashing lights that may trigger discomfort or seizures. **
+### **WARNING: The Fibonacci Sequence Visualizer shows bright flashing lights that may trigger discomfort or seizures. **
 
 ## Required Hardware and Attachments
 
