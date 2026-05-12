@@ -3,45 +3,29 @@
 ## Project Overview
 
 This project emulates a MIPS-I processor using VHDL on the Nexys A7-100T Trainer board.
-
-Fill in:
-- What the processor is designed to do
-- What programs are included
-- What a user should see when the project is running
-- Why this project was chosen
-
-Current notes:
-- The project includes a 3D spinning cube displayed through VGA.
-- The project includes a Fibonacci sequence visualization displayed through VGA.
-- The project was designed for CPE 487 at Stevens Institute of Technology.
-- This project was initially inspired by the PlayStation 1 R3000A processor.
+The processor was designed to be a general purpose processor, capable of graphics rendering, instruction handling, memory handling, and a lot more. We programmed a file manager, a 3d spinning cube, and the Fibonacci Sequence visualization displayed through VGA all on the board. This project was originally a PlayStation 1 emulator which uses an R3000A chip that we modelled our processor by. The R3000A is a 32 bit, pipelined processor that uses the MIPS-I ISA. It features no level 1 cache and instead uses instruction cache and an on-chip cache controller. 
 
 ## Expected Behavior
+When the FPGA is on and connected to a display through VGA, the Fibonacci Sequence Visualizer should be on the screen. It consists of many squares and sections flashing colors. The file manager uses the on-board buttons to toggle it on and move between our two programs. While the file manager is open, there will be a menu on the bottom of all 32 registers and their values. Once manuevered over to the Cube program, you will see a cube spinning about the z-axis. A register increments the phase angle of the cube which may result in a numerical overflow if the Cube program is left on for too long. 
 
-Describe the expected behavior of the finished project.
-
-Include:
-- What happens when the FPGA is programmed
-- What appears on the display
-- How the user selects or interacts with the included programs
-- What behavior confirms that the processor is working correctly
-- Any known limitations or expected edge cases
+# **WARNING: The Fibonacci Sequence Visualizer shows bright flashing lights that may trigger discomfort or seizures. **
 
 ## Required Hardware and Attachments
 
-List all hardware needed to run the project.
-
 Current hardware:
 - Nexys A7-100T Trainer board
+!(https://cdn11.bigcommerce.com/s-7gavg/images/stencil/1280x1280/products/629/5235/NexysA7-obl-600__85101.1670975737.jpg?c=2 "Nexys A7 board. Image from Digilent")
 - VGA male to HDMI female connector
+  !(https://ventiontech.com/cdn/shop/files/800x800_e25452ea-7b1d-4002-8ea5-6bf40a257c05.jpg?v=1741227776&width=600 "VGA male to HDMI female connector. Image from Vention")
 - VGA cable
+  !(https://upload.wikimedia.org/wikipedia/commons/8/81/Vga-cable.jpg "VGA Cable")
 - HDMI cable
+  !(https://upload.wikimedia.org/wikipedia/commons/c/c2/HDMI-Connector.jpg "HDMI Cable")
 - Micro USB-B power supply/programming cable
-
-Add if applicable:
+  !(https://upload.wikimedia.org/wikipedia/commons/d/db/MicroB_USB_Plug.jpg "Micro USB-B cable")
 - External monitor
-- Switches, buttons, LEDs, or seven-segment display usage
-- Any other required modules or cables
+  !(https://upload.wikimedia.org/wikipedia/commons/thumb/7/76/MonitorLCDlcd.svg/1920px-MonitorLCDlcd.svg.png "Monitor")
+- On-board buttons
 
 ## System Design
 
