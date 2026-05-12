@@ -76,26 +76,25 @@ Outputs:
 - VGA green: 3 bit vector that tell the VGA cable to display green and they control the vibrancy of the color.
 - VGA blue: 2 bit vector that tell the VGA cable to display blue and they control the vibrancy of the color.
 - VGA horizontal sync: VGA works similar to a CRT monitor and has sync times between writing the pixels row by row. 
-- VGA vertical sync: VGA has dedicated sync times on when to move to a different column. 
-  
-There are hundreds of inputs and outputs in this system that work as both. Looking through `FPGAtop.VHD` or `MIPSmicroprocessor.VHD` will give a good idea of how signals interact across components. 
-`   p: pc
-    port map(
-        clk   => clk,
-        reset => rst,
-        din   => pc_next,
-        dout  => programc
-    );
+- VGA vertical sync: VGA has dedicated sync times on when to move to a different column.
+- 
+There are hundreds of inputs and outputs in this system that work as both. Looking through `FPGAtop.vhd` or `MIPSmicroprocessor.vhd` will give a good idea of how signals interact across components.
 
-    i: instructionmemory
-    port map(
-        addr  => programc,
-        program_select => program_select,
-        instr => instr
-    );
-`
+```vhdl
+p: pc
+port map(
+    clk   => clk,
+    reset => rst,
+    din   => pc_next,
+    dout  => programc
+);
 
-This was pulled from `instructionfetch.vhd` and it shows how our CPU knows what instruction to perform next. We input the next address into the program counter so it can update on the next clock cycle and feed the current address into our instruction fetch so it can determine what to do with it. 
+i: instructionmemory
+port map(
+    addr           => programc,
+    program_select => program_select,
+    instr          => instr
+);
 
 ## Modifications and Original Contributions
 
