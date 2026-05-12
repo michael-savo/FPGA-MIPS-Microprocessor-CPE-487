@@ -14,29 +14,36 @@ When the FPGA is on and connected to a display through VGA, the Fibonacci Sequen
 
 Current hardware:
 - Nexys A7-100T Trainer board
-![](https://cdn11.bigcommerce.com/s-7gavg/images/stencil/1280x1280/products/629/5235/NexysA7-obl-600__85101.1670975737.jpg?c=2 "Nexys A7 board. Image from Digilent")
+  ![](https://cdn11.bigcommerce.com/s-7gavg/images/stencil/1280x1280/products/629/5235/NexysA7-obl-600__85101.1670975737.jpg?c=2 "Nexys A7 board. Image from Digilent")
+
 - VGA male to HDMI female connector
   ![](https://ventiontech.com/cdn/shop/files/800x800_e25452ea-7b1d-4002-8ea5-6bf40a257c05.jpg?v=1741227776&width=600 "VGA male to HDMI female connector. Image from Vention")
+  
 - VGA cable
   ![](https://upload.wikimedia.org/wikipedia/commons/8/81/Vga-cable.jpg "VGA Cable")
+  
 - HDMI cable
   ![](https://upload.wikimedia.org/wikipedia/commons/c/c2/HDMI-Connector.jpg "HDMI Cable")
+  
 - Micro USB-B power supply/programming cable
   ![](https://upload.wikimedia.org/wikipedia/commons/d/db/MicroB_USB_Plug.jpg "Micro USB-B cable")
+  
 - External monitor
   ![](https://upload.wikimedia.org/wikipedia/commons/thumb/7/76/MonitorLCDlcd.svg/1920px-MonitorLCDlcd.svg.png "Monitor")
+  
 - On-board buttons
 
 ## System Design
 
-Describe the high-level design of the project.
-
 Include:
+![](./mips.png "D. Harris and S. Harris, Digital Design and Computer Architecture, 2nd ed. Waltham, MA, USA: Morgan Kaufmann, 2012. Figure 7.11") 
 - Processor architecture overview
 - Major VHDL components/modules
 - How instruction memory, control, datapath, registers, ALU, and VGA output connect
 - How the included programs are stored and executed
 - Any finite state machines, Boolean logic, or control diagrams
+
+Our procesor is modelled off this single-cycle diagram. Each area highlighted is roughly what group of components it corresponds to. 
 
 Suggested diagrams/images to add:
 - High-level block diagram
@@ -56,11 +63,10 @@ Image placeholders:
 
 Summarize the steps needed to get the project working in Vivado and on the Nexys board.
 
-Fill in:
 1. Open Vivado.
 2. Create or open the project.
-3. Add the required `.vhd` source files.
-4. Add the required `.xdc` constraints file.
+3. Add the `.vhd` source files.
+4. Add the `.xdc` constraints file.
 5. Select the Nexys A7-100T board or correct FPGA part.
 6. Run synthesis.
 7. Run implementation.
