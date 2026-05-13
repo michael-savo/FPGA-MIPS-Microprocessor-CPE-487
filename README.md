@@ -47,6 +47,9 @@ Please click [here](https://youtube.com/shorts/lkU-81ugvW0?feature=share) to vie
 
 Please click [here](https://youtube.com/shorts/fr5oQ23pl1U?feature=share) for a video our Fibonacci Sequence Visualizer. It feeds Fibonacci sequence numbers into pixel data and it showcases the output. We slowed the clock down so it can be seen easier.
 
+<video src="./images/images_RenderedVideo.compressed.mp4" controls width="360"></video>
+
+
 ## Vivado Setup and Build Instructions
 1. Open Vivado.
 2. Create or open the project.
