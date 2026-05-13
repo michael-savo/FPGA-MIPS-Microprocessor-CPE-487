@@ -37,18 +37,15 @@ Include:
 
 Our procesor is modelled off this single-cycle diagram. Each area highlighted is roughly what group of components it corresponds to. 
 
-![Video of our Cube spinning. Path: ./images/RenderedVideo.mov](./images/RenderedVideo.mov)
-
-This is a video of our Cube program. It uses sine and cosine approximations to find the vertices. 
-
-![Video of our Fibonacci Sequence Visualizer. Path:./images/80023541081__381BFAF5-C00E-43DB-99CE-1197B2DE273A.mov ](./images/80023541081__381BFAF5-C00E-43DB-99CE-1197B2DE273A.mov)
-<iframe width="560" height="315" src="https://www.youtube.com/shorts/embed/fr5oQ23pl1U" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-
-This is a video of our Fibonacci Sequence Visualizer. It feeds Fibonacci sequence numbers into pixel data and it showcases the output. We slowed the clock down so it can be seen easier.
-
 ![](./images/FSM.png)
 
 This is the FSM on how our file manager works. It starts by waiting for the Left button to be toggled. If it toggles, then it opens the menu. While it's toggled then you can move between programs using the up and down buttons on the board. Press the toggle button again to close the file manager. 
+
+### Video Demos
+
+Please click [here](https://youtube.com/shorts/lkU-81ugvW0?feature=share) to view a video of our Cube program along with the GUI. It uses sine and cosine approximations to find the verticies. 
+
+Please click [here](https://youtube.com/shorts/fr5oQ23pl1U?feature=share) for a video our Fibonacci Sequence Visualizer. It feeds Fibonacci sequence numbers into pixel data and it showcases the output. We slowed the clock down so it can be seen easier.
 
 ## Vivado Setup and Build Instructions
 1. Open Vivado.
