@@ -43,12 +43,19 @@ This is the FSM on how our file manager works. It starts by waiting for the Left
 
 ### Video Demos
 
-Please click [here](https://youtube.com/shorts/lkU-81ugvW0?feature=share) to view a video of our Cube program along with the GUI. It uses sine and cosine approximations to find the verticies. 
+**3D Cube Program and Register View**
 
-Please click [here](https://youtube.com/shorts/fr5oQ23pl1U?feature=share) for a video our Fibonacci Sequence Visualizer. It feeds Fibonacci sequence numbers into pixel data and it showcases the output. We slowed the clock down so it can be seen easier.
+Here is a video of our Cube program along with the GUI. It uses sine and cosine approximations to find the verticies. 
 
-<video src="./images/images_RenderedVideo.compressed.mp4" controls width="360"></video>
+[![Watch demo 1](https://img.youtube.com/vi/lkU-81ugvW0/hqdefault.jpg)](https://www.youtube.com/watch?v=lkU-81ugvW0)
 
+**Fibonacci sequence program**
+
+Here is a video of our Fibonacci sequence program.
+
+[![Watch demo 2](https://img.youtube.com/vi/fr5oQ23pl1U/hqdefault.jpg)](https://www.youtube.com/watch?v=fr5oQ23pl1U)
+
+It feeds Fibonacci sequence numbers into pixel data and it showcases the output. We slowed the clock down so it can be seen easier.
 
 ## Vivado Setup and Build Instructions
 1. Open Vivado.
