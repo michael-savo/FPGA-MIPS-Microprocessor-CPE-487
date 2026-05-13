@@ -42,7 +42,7 @@ Our procesor is modelled off this single-cycle diagram. Each area highlighted is
 This is a video of our Cube program. It uses sine and cosine approximations to find the vertices. 
 
 ![Video of our Fibonacci Sequence Visualizer. Path:./images/80023541081__381BFAF5-C00E-43DB-99CE-1197B2DE273A.mov ](./images/80023541081__381BFAF5-C00E-43DB-99CE-1197B2DE273A.mov)
-
+<iframe width="560" height="315" src="https://www.youtube.com/shorts/embed/fr5oQ23pl1U" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 This is a video of our Fibonacci Sequence Visualizer. It feeds Fibonacci sequence numbers into pixel data and it showcases the output. We slowed the clock down so it can be seen easier.
 
 ![](./images/FSM.png)
