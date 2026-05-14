@@ -165,8 +165,6 @@ Github was not really used until after the processor was complete. The commits r
 
 ## Project Timeline
 
-Summarize the timeline of work completed.
-
 | Date/Week | Work Completed |
 | --- | --- |
 | Week 1 | Project idea and initial design |
