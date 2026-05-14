@@ -66,9 +66,10 @@ It feeds Fibonacci sequence numbers into pixel data and it showcases the output.
 6. Run synthesis.
 7. Run implementation.
 8. Generate the bitstream.
-9. Connect the Nexys board.
-10. Program the board.
-11. Connect the display and confirm output.
+9. Open Hardware Manager.
+10. Connect the Nexys board (Generally done through Auto-Connect).
+11. Program the board.
+12. Connect the display and confirm output.
 
 ## Nexys Board Inputs and Outputs
 Inputs:
@@ -152,8 +153,6 @@ Our processor imports almost everything into the top two modules, `FPGA_top.VHD`
 We had issues making a testbench that accurately showed the values of the register and instructions being performed. It wasn't until we started testing on the physical board that we began fixing these problems. We could have done a better job organizing the project in hindsight but overall, we did not have many issues with this project. We initially started with visualizing our registers on the board, once we saw the register values changing we knew that meant our CPU could perform some instructions. Feeding it more instructions and giving it other instructions is how we continued to improve and test if they worked. We know our programs work because they visualize what we expect and there is no real testing or debugging needed. 
 
 ## Team Contributions
-
-Summarize who was responsible for each part of the project.
 
 | Team Member | Contributions |
 | --- | --- |
